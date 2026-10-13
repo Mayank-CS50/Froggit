@@ -1,13 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const HOUSE_SCALE = 65;
+const HOUSE_SCALE = 90;
 const HOUSE_COUNT = 3;
-// Half of the floor size in Map.js; duplicated to avoid a circular import.
-const FLOOR_SAFE = 340;
 // Keep houses inside the floor and clear of the corner spawn areas.
-const MIN_POS = -FLOOR_SAFE;
-const MAX_POS = FLOOR_SAFE;
+const MIN_POS = -520;
+const MAX_POS = 520;
 
 const loader = new GLTFLoader();
 

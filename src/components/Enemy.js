@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const ENEMY_SCALE = 5;
-export const ENEMY_RADIUS = 30;
-export const ENEMY_SPEED = 100;
+const ENEMY_SCALE = 7;
+export const ENEMY_RADIUS = 42;
+export const ENEMY_SPEED = 130;
 // Tipped model (rotation.x = π/2): rotate the inner model around ITS y-axis to face
 // travel, same as the player fix. Same offset: glTF forward is +Z pre-tip; nose
 // lands on −Y post-tip; π/2 realigns. Calibrate the same way if bees fly sideways.

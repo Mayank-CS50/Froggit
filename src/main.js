@@ -10,16 +10,16 @@ import { createTongue, fireTongue, updateTongue, tongueActive, clearTongue, TONG
 import { createCombo, registerEat, updateCombo, comboMultiplier, COMBO_WINDOW } from './components/Combo.js';
 
 const SPAWN_LOCATIONS = [
-  new THREE.Vector3(-380, -380, 0),
-  new THREE.Vector3(380, -380, 0),
-  new THREE.Vector3(-380, 380, 0),
-  new THREE.Vector3(380, 380, 0),
+  new THREE.Vector3(-660, -660, 0),
+  new THREE.Vector3(660, -660, 0),
+  new THREE.Vector3(-660, 660, 0),
+  new THREE.Vector3(660, 660, 0),
 ];
 const SPAWN_DELAY = 2; // seconds, base
 const SCORE_PER_SECOND = 0.1;
 const SCORE_PER_KILL = 10;
 const DIFFICULTY_GROWTH = 0.02; // difficulty factor per score point
-const FLOOR_LIMIT = 390; // keep entities on the board
+const FLOOR_LIMIT = 680; // keep entities on the board
 const HIGH_SCORE_KEY = 'froggit-highscore';
 
 // Scene

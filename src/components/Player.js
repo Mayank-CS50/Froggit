@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const MODEL_SCALE = 20;
+const MODEL_SCALE = 28;
 // The model is tipped rotation.x = π/2 (Y-up → Z-up), so facing is YAW = rotation.y,
 // not rotation.z (which rolls the frog on its side). glTF models face +Z; after the
 // tip the nose heads −Y, so +π/2 lines it up with the travel direction.
 // Calibration: if Tode faces 90° off while hopping, change this to 0 or −π/2.
 const MODEL_YAW_OFFSET = Math.PI / 2;
 
-export const PLAYER_RADIUS = 20;
+export const PLAYER_RADIUS = 28;
 export const MOVE_SPEED = 2; // hops per second
-export const JUMP_HEIGHT = 80;
-export const JUMP_DISTANCE = 100;
+export const JUMP_HEIGHT = 110;
+export const JUMP_DISTANCE = 140;
 
 // Map arrow keys to unit direction vectors in the XY plane.
 const DIRECTIONS = {
@@ -70,10 +70,15 @@ export function updatePlayer(player, delta, moveSpeed, canMoveTo) {
   player.position.y = current.startPos.y + current.dir.y * JUMP_DISTANCE * p;
   player.position.z = Math.sin(p * Math.PI) * JUMP_HEIGHT;
 
-  // Rotate the model (not the group — camera is a child) to face travel direction.
-  const model = player.userData.model;
-  if (model && (current.dir.x !== 0 || current.dir.y !== 0)) {
-    model.rotation.y = MODEL_YAW_OFFSET + Math.atan2(current.dir.y, current.dir.x);
+  // Rotate the model (not the group — camera is a child) to face travel direction —
+  // unless the tongue has locked the head on a target.
+  if (player.userData.facingLock > 0) {
+    player.userData.facingLock -= delta;
+  } else {
+    const model = player.userData.model;
+    if (model && (current.dir.x !== 0 || current.dir.y !== 0)) {
+      model.rotation.y = MODEL_YAW_OFFSET + Math.atan2(current.dir.y, current.dir.x);
+    }
   }
 
   if (p >= 1) {
@@ -104,4 +109,10 @@ export function getFacing(player) {
   if (!model) return new THREE.Vector3(1, 0, 0);
   const a = model.rotation.y - MODEL_YAW_OFFSET;
   return new THREE.Vector3(Math.cos(a), Math.sin(a), 0);
+}
+
+// Hold the current facing for the next `seconds` — the tongue locks the head
+// on its target so hop turning doesn't yank it mid-eat.
+export function lockFacing(player, seconds) {
+  player.userData.facingLock = seconds;
 }

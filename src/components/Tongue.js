@@ -1,15 +1,20 @@
 import * as THREE from 'three';
-import { faceDirection, getFacing } from './Player.js';
+import { faceDirection, getFacing, lockFacing } from './Player.js';
 
-export const TONGUE_RANGE = 220;
+export const TONGUE_RANGE = 300;
 const EXTEND_TIME = 0.14; // s — the lunge
 const REEL_TIME = 0.16; // s — pulling the bee back
 const FLICK_TIME = 0.12; // s — a miss still flicks
 const FLICK_DISTANCE = 90;
-const TONGUE_RADIUS = 6;
-const MOUTH_HEIGHT = 25;
+const TONGUE_RADIUS = 3.5; // thin tube, matches the reference proportions
 const TONGUE_COLOR = 0xff69b4;
 const UP = new THREE.Vector3(0, 1, 0);
+
+// Mouth anchor, measured from the model: body is ~17.6 tall / ~21 deep at scale 28
+// (raw bbox 0.63 y-height × 0.76 z-depth). The reference has the tongue firing
+// from the FRONT-TOP of the head, above the body silhouette — not the group center.
+const MOUTH_HEIGHT = 12; // z above the frog's ground point
+const MOUTH_FORWARD = 6; // out from the head along the facing/target direction
 
 export function createTongue() {
   const material = new THREE.MeshBasicMaterial({ color: TONGUE_COLOR });
@@ -17,7 +22,7 @@ export function createTongue() {
     new THREE.CylinderGeometry(TONGUE_RADIUS, TONGUE_RADIUS, 1, 8),
     material,
   );
-  const tip = new THREE.Mesh(new THREE.SphereGeometry(TONGUE_RADIUS * 1.3, 8, 8), material);
+  const tip = new THREE.Mesh(new THREE.SphereGeometry(TONGUE_RADIUS * 1.4, 8, 8), material);
   const group = new THREE.Group();
   group.add(rod, tip);
   group.visible = false;
@@ -33,11 +38,11 @@ export function tongueActive(tongue) {
 export function fireTongue(tongue, player, enemies) {
   if (tongue.state) return null;
 
-  const mouth = mouthPos(player);
+  const origin = mouthPos(player, getFacing(player));
   let best = null;
   let bestDist = TONGUE_RANGE;
   for (const enemy of enemies) {
-    const d = Math.hypot(enemy.position.x - mouth.x, enemy.position.y - mouth.y);
+    const d = Math.hypot(enemy.position.x - origin.x, enemy.position.y - origin.y);
     if (d < bestDist) {
       best = enemy;
       bestDist = d;
@@ -50,6 +55,8 @@ export function fireTongue(tongue, player, enemies) {
       best.position.x - player.position.x,
       best.position.y - player.position.y,
     );
+    // Hold the facing through the eat so a mid-hop fire doesn't snap the head back.
+    lockFacing(player, 0.45);
     tongue.state = { phase: 'extend', t: 0, target: best };
     return best;
   }
@@ -65,7 +72,14 @@ export function updateTongue(tongue, player, delta, speedFactor, { onGrab, onEat
   const state = tongue.state;
   if (!state) return;
 
-  const mouth = mouthPos(player);
+  // Mouth tracks the frog every frame — including mid-hop height — and points
+  // at the target while a bee is in flight, so the tongue always leaves the
+  // front of the head, never floating beside it.
+  const mouthDir =
+    state.target
+      ? dirTo(player, state.target.position)
+      : state.dir || getFacing(player);
+  const mouth = mouthPos(player, mouthDir);
   const phaseTime =
     state.phase === 'extend' ? EXTEND_TIME : state.phase === 'reel' ? REEL_TIME : FLICK_TIME;
   state.t = Math.min(1, state.t + (delta * speedFactor) / phaseTime);
@@ -92,7 +106,7 @@ export function updateTongue(tongue, player, delta, speedFactor, { onGrab, onEat
     }
   } else {
     // Flick: out and back on one sine.
-    tipPos = mouth.clone().addScaledVector(state.dir, FLICK_DISTANCE * Math.sin(t * Math.PI));
+    tipPos = mouth.clone().addScaledVector(mouthDir, FLICK_DISTANCE * Math.sin(t * Math.PI));
     if (t >= 1) {
       tongue.state = null;
       tongue.group.visible = false;
@@ -109,8 +123,18 @@ export function clearTongue(tongue) {
   tongue.group.visible = false;
 }
 
-function mouthPos(player) {
-  return new THREE.Vector3(player.position.x, player.position.y, MOUTH_HEIGHT);
+function mouthPos(player, dir) {
+  return new THREE.Vector3(
+    player.position.x + dir.x * MOUTH_FORWARD,
+    player.position.y + dir.y * MOUTH_FORWARD,
+    player.position.z + MOUTH_HEIGHT,
+  );
+}
+
+function dirTo(player, to) {
+  const d = new THREE.Vector3().subVectors(to, player.position);
+  d.z = 0;
+  return d.lengthSq() > 0.0001 ? d.normalize() : new THREE.Vector3(1, 0, 0);
 }
 
 function drawTongue(tongue, from, to) {
