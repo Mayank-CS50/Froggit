@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 
-const FOV = 38; // widened: more play area on screen
+const FOV = 46; // wide board view
 const FAR_PLANE = 9000;
-const INITIAL_POSITION = new THREE.Vector3(420, -420, 420);
+const INITIAL_POSITION = new THREE.Vector3(500, -500, 500);
 
 export function createCamera() {
   const camera = new THREE.PerspectiveCamera(

@@ -10,11 +10,11 @@ const TONGUE_RADIUS = 3.5; // thin tube, matches the reference proportions
 const TONGUE_COLOR = 0xff69b4;
 const UP = new THREE.Vector3(0, 1, 0);
 
-// Mouth anchor, measured from the model: body is ~17.6 tall / ~21 deep at scale 28
-// (raw bbox 0.63 y-height × 0.76 z-depth). The reference has the tongue firing
-// from the FRONT-TOP of the head, above the body silhouette — not the group center.
-const MOUTH_HEIGHT = 12; // z above the frog's ground point
-const MOUTH_FORWARD = 6; // out from the head along the facing/target direction
+// Mouth anchor, measured from the model proportions (raw bbox: 0.63 tall, 0.76 deep).
+// Reference: tongue fires from the front of the face BELOW the eyes — the mouth.
+// Scaled with MODEL_SCALE: at 126 the frog is ~79 tall, mouth sits ~40 up, ~14 out.
+const MOUTH_HEIGHT = 40; // z above the frog's ground point — under the eyes, at the jaw
+const MOUTH_FORWARD = 14; // out from the head along the facing/target direction
 
 export function createTongue() {
   const material = new THREE.MeshBasicMaterial({ color: TONGUE_COLOR });

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const ENEMY_SCALE = 7;
-export const ENEMY_RADIUS = 42;
+const ENEMY_SCALE = 80; // ~90% cell fill (raw 1.53 wide × 80 ≈ 122)
+export const ENEMY_RADIUS = 56;
 export const ENEMY_SPEED = 130;
 // Tipped model (rotation.x = π/2): rotate the inner model around ITS y-axis to face
 // travel, same as the player fix. Same offset: glTF forward is +Z pre-tip; nose

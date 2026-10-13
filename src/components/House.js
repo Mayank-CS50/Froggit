@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const HOUSE_SCALE = 90;
+const HOUSE_SCALE = 125; // ~90% cell fill on footprint (raw 0.89 wide × 125 ≈ 111)
 const HOUSE_COUNT = 3;
 // Keep houses inside the floor and clear of the corner spawn areas.
 const MIN_POS = -520;
