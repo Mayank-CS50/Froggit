@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.score {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.game-over {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  font-size: 64px;
+  font-weight: bold;
+  z-index: 20;
+  cursor: pointer;
+}
+
+.game-over span {
+  font-size: 20px;
+  font-weight: normal;
+  margin-top: 24px;
+}
+
+.start-prompt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: system-ui, sans-serif;
+  font-size: 28px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
