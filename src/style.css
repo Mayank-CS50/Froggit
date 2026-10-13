@@ -49,3 +49,39 @@ body {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
   z-index: 10;
 }
+
+.highscore {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  font-family: system-ui, sans-serif;
+  font-size: 22px;
+  color: #ffd700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.combo {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: system-ui, sans-serif;
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff69b4;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.score-popup {
+  position: fixed;
+  font-family: system-ui, sans-serif;
+  font-size: 26px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 11;
+  transform: translate(-50%, -50%);
+}

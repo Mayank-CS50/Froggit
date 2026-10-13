@@ -91,3 +91,17 @@ export function startHop(player, key) {
   player.userData.queue.push(dir);
   return true;
 }
+
+// Snap the model to face a world direction (dx, dy) — used by the tongue targeting.
+export function faceDirection(player, dx, dy) {
+  const model = player.userData.model;
+  if (model) model.rotation.y = MODEL_YAW_OFFSET + Math.atan2(dy, dx);
+}
+
+// Unit vector of current facing in the XY plane (fallback: +X).
+export function getFacing(player) {
+  const model = player.userData.model;
+  if (!model) return new THREE.Vector3(1, 0, 0);
+  const a = model.rotation.y - MODEL_YAW_OFFSET;
+  return new THREE.Vector3(Math.cos(a), Math.sin(a), 0);
+}
