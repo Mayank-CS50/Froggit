@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const MODEL_SCALE = 63; // ~45% of a 140 cell — half of the 90% fill
+const MODEL_SCALE = 98; // ~70% of a 140 cell — the hero of the board
 // The model is tipped rotation.x = π/2 (Y-up → Z-up), so facing is YAW = rotation.y,
 // not rotation.z (which rolls the frog on its side). glTF models face +Z; after the
 // tip the nose heads −Y, so +π/2 lines it up with the travel direction.
 // Calibration: if Tode faces 90° off while hopping, change this to 0 or −π/2.
 const MODEL_YAW_OFFSET = Math.PI / 2;
 
-export const PLAYER_RADIUS = 28; // half of the 90% fill
+export const PLAYER_RADIUS = 49; // half of the ~98-wide frog
 export const MOVE_SPEED = 2; // hops per second
-export const JUMP_HEIGHT = 55; // scaled down with the smaller frog (~1.4x height)
+export const JUMP_HEIGHT = 85; // clears the ~62-tall frog with headroom
 export const JUMP_DISTANCE = 140;
 
 // Map arrow keys to unit direction vectors in the XY plane.
