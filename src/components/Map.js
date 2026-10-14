@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export const FLOOR_SIZE = 1400;
+export const FLOOR_SIZE = 2100;
 // Must equal JUMP_DISTANCE in Player.js — one hop = one cell, frog lands centered.
 const CELL_SIZE = 140;
 

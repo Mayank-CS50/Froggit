@@ -1,20 +1,20 @@
 import * as THREE from 'three';
 import { faceDirection, getFacing, lockFacing } from './Player.js';
 
-export const TONGUE_RANGE = 300;
+export const TONGUE_RANGE = 260;
 const EXTEND_TIME = 0.14; // s — the lunge
 const REEL_TIME = 0.16; // s — pulling the bee back
 const FLICK_TIME = 0.12; // s — a miss still flicks
-const FLICK_DISTANCE = 90;
-const TONGUE_RADIUS = 3.5; // thin tube, matches the reference proportions
+const FLICK_DISTANCE = 60;
+const TONGUE_RADIUS = 2.2; // thin tube, scaled to the half-size frog
 const TONGUE_COLOR = 0xff69b4;
 const UP = new THREE.Vector3(0, 1, 0);
 
 // Mouth anchor, measured from the model proportions (raw bbox: 0.63 tall, 0.76 deep).
 // Reference: tongue fires from the front of the face BELOW the eyes — the mouth.
-// Scaled with MODEL_SCALE: at 126 the frog is ~79 tall, mouth sits ~40 up, ~14 out.
-const MOUTH_HEIGHT = 40; // z above the frog's ground point — under the eyes, at the jaw
-const MOUTH_FORWARD = 14; // out from the head along the facing/target direction
+// Scaled with MODEL_SCALE: at 63 the frog is ~40 tall, mouth sits ~20 up, ~7 out.
+const MOUTH_HEIGHT = 20; // z above the frog's ground point — under the eyes, at the jaw
+const MOUTH_FORWARD = 7; // out from the head along the facing/target direction
 
 export function createTongue() {
   const material = new THREE.MeshBasicMaterial({ color: TONGUE_COLOR });
