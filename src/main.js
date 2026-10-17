@@ -8,6 +8,8 @@ import { createHouses } from './components/House.js';
 import { createEnemy, updateEnemy, ENEMY_RADIUS, ENEMY_SPEED } from './components/Enemy.js';
 import { createTongue, fireTongue, updateTongue, tongueActive, clearTongue, TONGUE_RANGE } from './components/Tongue.js';
 import { createCombo, registerEat, updateCombo, comboMultiplier, COMBO_WINDOW } from './components/Combo.js';
+import { sound } from './components/Audio.js';
+import { createParticles, spawnBurst, updateParticles } from './components/Particles.js';
 
 const SPAWN_LOCATIONS = [
   new THREE.Vector3(-1010, -1010, 0),
@@ -47,10 +49,23 @@ player.add(camera);
 
 const renderer = createRenderer();
 
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
 const tongue = createTongue();
 scene.add(tongue.group);
 
 const combo = createCombo();
+const particles = createParticles();
+scene.add(particles.group);
+
+const DEFAULT_CAMERA_POS = new THREE.Vector3(700, -700, 700);
+let cameraTrauma = 0;
+let hitStop = 0;
+let evolutionStage = 1; // 1: 0-4 bees, 2: 5-9 bees, 3: 10+ bees
 
 // Score UI
 const scoreDiv = document.createElement('div');
@@ -77,6 +92,20 @@ startPrompt.className = 'start-prompt';
 startPrompt.textContent = 'FROGGIT — press SPACE to start, arrows to hop';
 document.body.appendChild(startPrompt);
 
+// Stage banner (Evolution announcement)
+const stageBanner = document.createElement('div');
+stageBanner.className = 'stage-banner';
+stageBanner.innerHTML = '<div class="title"></div><div class="subtitle"></div>';
+document.body.appendChild(stageBanner);
+let stageBannerTimer = 0;
+
+function showStageBanner(title, subtitle) {
+  stageBanner.querySelector('.title').textContent = title;
+  stageBanner.querySelector('.subtitle').textContent = subtitle;
+  stageBanner.classList.add('show');
+  stageBannerTimer = 2.8;
+}
+
 // Game state
 let enemies = [];
 let score = 0;
@@ -94,11 +123,14 @@ window.addEventListener('keydown', (event) => {
     else if (!started) startGame();
     else if (!tongueActive(tongue)) {
       fireTongue(tongue, player, enemies);
+      sound.tongueFire();
     }
     return;
   }
   if (!started || gameOver) return;
-  startHop(player, event.code);
+  if (startHop(player, event.code)) {
+    sound.hop();
+  }
 });
 
 // Game flow
@@ -113,10 +145,19 @@ function resetGame() {
   player.position.copy(playerStart);
   player.userData.move = null;
   player.userData.queue.length = 0;
+  player.userData.baseScale = 112;
+  if (player.userData.model) {
+    player.userData.model.scale.setScalar(112);
+  }
   player.visible = true;
   enemies.forEach((e) => scene.remove(e));
   enemies = [];
   score = 0;
+  beesEaten = 0;
+  evolutionStage = 1;
+  cameraTrauma = 0;
+  hitStop = 0;
+  stageBanner.classList.remove('show');
   gameOver = false;
   spawnTimer = SPAWN_DELAY;
   combo.count = 0;
@@ -189,6 +230,7 @@ let beesEaten = 0;
 function onGrab(bee) {
   const i = enemies.indexOf(bee);
   if (i !== -1) enemies.splice(i, 1); // latched bees stop being live threats
+  sound.grab();
 }
 
 function onEat(bee) {
@@ -197,6 +239,47 @@ function onEat(bee) {
   const mult = registerEat(combo);
   const gained = SCORE_PER_KILL * mult;
   score += gained;
+  sound.eat();
+  if (mult > 1) {
+    sound.combo(mult);
+    comboDiv.classList.remove('pop');
+    void comboDiv.offsetWidth;
+    comboDiv.classList.add('pop');
+  }
+
+  // Hit-stop: 50ms tactile micro-pause on swallow
+  hitStop = 0.05;
+
+  // Camera trauma shake: Vlambeer formula
+  cameraTrauma = Math.min(1, cameraTrauma + 0.45);
+
+  // Pollen particle burst at bee position
+  spawnBurst(particles, bee.position, 24);
+
+  // Agar.io-style sub-perceptual growth (+2% per bee, capped at +40%)
+  const growth = 1 + Math.min(0.40, beesEaten * 0.02);
+  const newScale = 112 * growth;
+  player.userData.baseScale = newScale;
+  if (player.userData.model) {
+    player.userData.model.scale.setScalar(newScale);
+  }
+
+  // Evolution stage check
+  const prevStage = evolutionStage;
+  if (beesEaten >= 10) {
+    evolutionStage = 3;
+  } else if (beesEaten >= 5) {
+    evolutionStage = 2;
+  }
+
+  if (evolutionStage > prevStage) {
+    if (evolutionStage === 2) {
+      showStageBanner('Stage 2: The Bees Notice', 'Nearby bees panic & flee from your bulk!');
+    } else if (evolutionStage === 3) {
+      showStageBanner('Stage 3: The Hive Trembles', 'Apex predator! The entire swarm scatters!');
+    }
+  }
+
   popup('+' + gained + (mult > 1 ? '  x' + mult : ''), player.position);
 }
 
@@ -233,6 +316,21 @@ function updatePopups(delta) {
 renderer.setAnimationLoop(() => {
   const delta = Math.min(clock.getDelta(), 0.1);
 
+  // Hit-stop: freeze game state updates during impact while keeping particle simulation alive
+  if (hitStop > 0) {
+    hitStop -= delta;
+    updateParticles(particles, delta);
+    renderer.render(scene, camera);
+    return;
+  }
+
+  if (stageBannerTimer > 0) {
+    stageBannerTimer -= delta;
+    if (stageBannerTimer <= 0) {
+      stageBanner.classList.remove('show');
+    }
+  }
+
   if (started && !gameOver) {
     // Score: survival
     score += delta * SCORE_PER_SECOND;
@@ -264,11 +362,11 @@ renderer.setAnimationLoop(() => {
       comboDiv.style.display = 'none';
     }
 
-    // Enemy movement + collisions
+    // Enemy movement + collisions with Stage Flee AI
     const enemySpeed = ENEMY_SPEED * diff;
     for (const enemy of enemies) {
       const next = enemy.position.clone();
-      updateEnemy({ position: next }, player, enemySpeed, delta);
+      updateEnemy({ position: next }, player, enemySpeed, delta, evolutionStage);
 
       // Enemy vs enemy: only move if clear
       let blocked = false;
@@ -290,18 +388,32 @@ renderer.setAnimationLoop(() => {
 
       if (!blocked) {
         enemy.position.copy(next);
-        updateEnemy({ position: enemy.position, userData: enemy.userData }, player, 0, 0); // face only
+        updateEnemy({ position: enemy.position, userData: enemy.userData }, player, 0, 0, evolutionStage); // face only
       }
     }
 
     updatePopups(delta);
   }
 
+  // Camera trauma shake: Vlambeer decay formula
+  if (cameraTrauma > 0) {
+    cameraTrauma = Math.max(0, cameraTrauma - delta * 3.5);
+    const shake = cameraTrauma * cameraTrauma;
+    const maxOffset = 7.0;
+    camera.position.x = DEFAULT_CAMERA_POS.x + (Math.random() * 2 - 1) * maxOffset * shake;
+    camera.position.y = DEFAULT_CAMERA_POS.y + (Math.random() * 2 - 1) * maxOffset * shake;
+    camera.position.z = DEFAULT_CAMERA_POS.z + (Math.random() * 2 - 1) * maxOffset * shake;
+  } else {
+    camera.position.copy(DEFAULT_CAMERA_POS);
+  }
+
+  updateParticles(particles, delta);
   renderer.render(scene, camera);
 });
 
 function endGame() {
   gameOver = true;
+  sound.gameOver();
   clearTongue(tongue);
   player.visible = false;
   if (Math.floor(score) > highScore) {
@@ -321,3 +433,134 @@ function canPlayerMoveTo(target) {
   }
   return true;
 }
+// In src/main.js
+
+import { SFX } from './components/Audio.js';
+
+// --- Cinematic Constants ---
+const DEFAULT_FOV = 50;
+const CINEMATIC_TARGET_FOV = 28;
+const CINEMATIC_DURATION = 0.55; // seconds
+
+let gameState = 'PLAYING'; // 'PLAYING' | 'GAMEOVER_CINEMATIC' | 'GAMEOVER'
+let cinematicTimer = 0;
+let initialCameraPos = new THREE.Vector3();
+let initialLookAt = new THREE.Vector3();
+let cameraLookAtTarget = new THREE.Vector3();
+
+// --- Inside your Collision / Defeat handler ---
+function onPlayerDefeated() {
+  if (gameState !== 'PLAYING') return;
+
+  gameState = 'GAMEOVER_CINEMATIC';
+  cinematicTimer = 0;
+
+  // 1. Play procedural game-over audio
+  SFX.gameOver();
+
+  // 2. Snapshot current camera position and target
+  initialCameraPos.copy(camera.position);
+  initialLookAt.set(player.position.x, player.position.y, 0);
+  cameraLookAtTarget.copy(initialLookAt);
+}
+
+// --- Inside your main animate/update loop ---
+function update(delta) {
+  // Always update particles for smooth ambient decay
+  particleSystem.update(delta);
+
+  if (gameState === 'PLAYING') {
+    // 1. Check hit-stop freeze from swallow
+    if (hitStopTimer > 0) {
+      hitStopTimer -= delta;
+      return;
+    }
+
+    // 2. Update player & enemies
+    player.update(delta);
+    enemies.forEach(bee => bee.update(delta, player, evolutionStage));
+    tongue.update(delta, player, enemies);
+
+    // 3. Collision Check: Bee touching Tode
+    for (const bee of enemies) {
+      const dist = player.position.distanceTo(bee.position);
+      if (dist < PLAYER_RADIUS + ENEMY_RADIUS) {
+        onPlayerDefeated();
+        break;
+      }
+    }
+
+  } else if (gameState === 'GAMEOVER_CINEMATIC') {
+    cinematicTimer += delta;
+    const p = Math.min(1.0, cinematicTimer / CINEMATIC_DURATION);
+    const ease = p * p * (3 - 2 * p); // smoothstep
+
+    // A. Lerp FOV from 50 to 28 (smooth push into Tode's face)
+    camera.fov = THREE.MathUtils.lerp(DEFAULT_FOV, CINEMATIC_TARGET_FOV, ease);
+    camera.updateProjectionMatrix();
+
+    // B. Smoothly pan camera focus to Tode's face (Z: MOUTH_HEIGHT = 35)
+    const todeFacePos = new THREE.Vector3(
+      player.position.x,
+      player.position.y,
+      35
+    );
+    cameraLookAtTarget.lerpVectors(initialLookAt, todeFacePos, ease);
+    camera.lookAt(cameraLookAtTarget);
+
+    // C. Deflate Tode's posture
+    player.deflate(p);
+
+    // D. Cinematic complete -> Display Scorecard
+    if (p >= 1.0) {
+      gameState = 'GAMEOVER';
+      showScorecard();
+    }
+  }
+
+  // Camera trauma shake (Vlambeer juice)
+  updateCameraShake(camera, defaultCamPos, delta);
+}
+
+// --- Scorecard Presentation ---
+function showScorecard() {
+  const scorecardEl = document.getElementById('scorecard-modal');
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('bees-eaten').textContent = beesEaten;
+  document.getElementById('max-combo').textContent = `${maxCombo}x`;
+
+  let stageName = 'Stage 1: Tadpole';
+  if (beesEaten >= 10) stageName = 'Stage 3: The Hive Trembles';
+  else if (beesEaten >= 5) stageName = 'Stage 2: The Bees Notice';
+  document.getElementById('highest-stage').textContent = stageName;
+
+  scorecardEl.classList.remove('hidden');
+}
+
+// --- Reset / Play Again ---
+function restartGame() {
+  gameState = 'PLAYING';
+  cinematicTimer = 0;
+
+  // Reset Camera
+  camera.fov = DEFAULT_FOV;
+  camera.updateProjectionMatrix();
+  camera.position.copy(defaultCamPos);
+  camera.lookAt(0, 0, 0);
+
+  // Reset Player & Entities
+  player.resetDefeat();
+  player.resetPosition();
+  resetEnemies();
+  resetScoreAndCombos();
+
+  // Hide Scorecard
+  document.getElementById('scorecard-modal').classList.add('hidden');
+}
+
+// Listen for retry keys
+window.addEventListener('keydown', (e) => {
+  if (gameState === 'GAMEOVER' && (e.code === 'KeyR' || e.code === 'Space')) {
+    restartGame();
+  }
+});

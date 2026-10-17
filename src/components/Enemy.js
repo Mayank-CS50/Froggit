@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const ENEMY_SCALE = 34; // ~37% of a 140 cell — prey, visibly smaller than the frog
-export const ENEMY_RADIUS = 26;
+const ENEMY_SCALE = 28; // ~20% of a 140 cell cube — distinct flying insect prey, agile and swarming
+export const ENEMY_RADIUS = 21;
 export const ENEMY_SPEED = 130;
 // Tipped model (rotation.x = π/2): rotate the inner model around ITS y-axis to face
 // travel, same as the player fix. Same offset: glTF forward is +Z pre-tip; nose
@@ -28,14 +28,25 @@ export function createEnemy(position) {
   return group;
 }
 
-export function updateEnemy(enemy, target, speed, delta) {
-  const dir = new THREE.Vector3()
-    .subVectors(target.position, enemy.position);
-  dir.z = 0;
-  dir.normalize();
-  enemy.position.addScaledVector(dir, speed * delta);
-  // Face the target: rotate the tipped model's yaw (not the group — the group z-spin
-  // would roll the bee). Stinger/face heads toward the player.
+export function updateEnemy(enemy, target, speed, delta, stage = 1) {
+  const toPlayer = new THREE.Vector3().subVectors(target.position, enemy.position);
+  toPlayer.z = 0;
+  const dist = toPlayer.length();
+
+  let dir = toPlayer.clone().normalize();
+  let currentSpeed = speed;
+
+  // Pac-Man / Agar.io Flee AI: when Tode evolves to Stage 2 or 3, bees within danger range flee!
+  if (stage >= 2 && dist < 420) {
+    dir.negate();
+    dir.x += (Math.random() - 0.5) * 0.25;
+    dir.y += (Math.random() - 0.5) * 0.25;
+    dir.normalize();
+    currentSpeed = speed * (stage >= 3 ? 1.45 : 1.3);
+  }
+
+  enemy.position.addScaledVector(dir, currentSpeed * delta);
+  // Face movement direction: rotate tipped model's yaw
   const model = enemy.userData?.model;
   if (model) {
     model.rotation.y = YAW_OFFSET + Math.atan2(dir.y, dir.x);

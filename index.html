@@ -7,6 +7,36 @@
     <title>FROGGIT</title>
   </head>
   <body>
+    <!-- In index.html inside <body> -->
+<div id="scorecard-modal" class="scorecard-overlay hidden">
+  <div class="scorecard-card">
+    <div class="scorecard-badge">THE FROGGIT</div>
+    <h2 class="scorecard-title">SWARM OVERRUN</h2>
+
+    <div class="score-grid">
+      <div class="stat-box">
+        <span class="stat-label">TOTAL SCORE</span>
+        <span id="final-score" class="stat-val primary">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">BEES SWALLOWED</span>
+        <span id="bees-eaten" class="stat-val">0</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">MAX COMBO</span>
+        <span id="max-combo" class="stat-val accent">1x</span>
+      </div>
+      <div class="stat-box full-width">
+        <span class="stat-label">EVOLUTION REACHED</span>
+        <span id="highest-stage" class="stat-val small">Stage 1</span>
+      </div>
+    </div>
+
+    <button id="restart-btn" class="retry-button" onclick="window.restartGame()">
+      PLAY AGAIN <span class="key-hint">[SPACE / R]</span>
+    </button>
+  </div>
+</div>
    <canvas class="game"></canvas>
     <script type="module" src="/src/main.js"></script>
   </body>

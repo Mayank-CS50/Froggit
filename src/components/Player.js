@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const MODEL_SCALE = 98; // ~70% of a 140 cell — the hero of the board
+const MODEL_SCALE = 112; // ~80% of a 140 cell cube — solid heroic presence filling the tile
 // The model is tipped rotation.x = π/2 (Y-up → Z-up), so facing is YAW = rotation.y,
 // not rotation.z (which rolls the frog on its side). glTF models face +Z; after the
 // tip the nose heads −Y, so +π/2 lines it up with the travel direction.
 // Calibration: if Tode faces 90° off while hopping, change this to 0 or −π/2.
 const MODEL_YAW_OFFSET = Math.PI / 2;
 
-export const PLAYER_RADIUS = 49; // half of the ~98-wide frog
-export const MOVE_SPEED = 2; // hops per second
-export const JUMP_HEIGHT = 85; // clears the ~62-tall frog with headroom
+export const PLAYER_RADIUS = 56; // half of the ~112-wide frog
+export const MOVE_SPEED = 5; // hops per second (~0.2s hop, Crossy Road timing)
+export const JUMP_HEIGHT = 45; // snappy arc (0.32 ratio against 140 cell)
 export const JUMP_DISTANCE = 140;
 
 // Map arrow keys to unit direction vectors in the XY plane.
@@ -34,6 +34,7 @@ export function createPlayer() {
     model.position.z = -box.min.z;
     group.add(model);
     group.userData.model = model;
+    group.userData.baseScale = MODEL_SCALE;
   });
 
   group.userData.queue = [];
@@ -70,29 +71,42 @@ export function updatePlayer(player, delta, moveSpeed, canMoveTo) {
   player.position.y = current.startPos.y + current.dir.y * JUMP_DISTANCE * p;
   player.position.z = Math.sin(p * Math.PI) * JUMP_HEIGHT;
 
+  const model = player.userData.model;
+
+  // Crossy Road squash & stretch with volume preservation:
+  // Apex (p ~ 0.5): vertically stretched (local Y), horizontally slimmed
+  // Takeoff/Landing (p ~ 0 / 1): slight ground impact squash
+  if (model) {
+    const baseScale = player.userData.baseScale || MODEL_SCALE;
+    const stretch = Math.sin(p * Math.PI); // 0 at ground, 1 at peak
+    const yFactor = 1 + stretch * 0.22 - (1 - stretch) * 0.08;
+    const xzFactor = 1 / Math.sqrt(Math.max(0.1, yFactor));
+    model.scale.set(baseScale * xzFactor, baseScale * yFactor, baseScale * xzFactor);
+  }
+
   // Rotate the model (not the group — camera is a child) to face travel direction —
   // unless the tongue has locked the head on a target.
   if (player.userData.facingLock > 0) {
     player.userData.facingLock -= delta;
-  } else {
-    const model = player.userData.model;
-    if (model && (current.dir.x !== 0 || current.dir.y !== 0)) {
-      model.rotation.y = MODEL_YAW_OFFSET + Math.atan2(current.dir.y, current.dir.x);
-    }
+  } else if (model && (current.dir.x !== 0 || current.dir.y !== 0)) {
+    model.rotation.y = MODEL_YAW_OFFSET + Math.atan2(current.dir.y, current.dir.x);
   }
 
   if (p >= 1) {
     player.userData.move = null;
     player.position.z = 0;
+    if (model) {
+      const baseScale = player.userData.baseScale || MODEL_SCALE;
+      model.scale.setScalar(baseScale);
+    }
   }
 }
 
 export function startHop(player, key) {
   const dir = DIRECTIONS[key];
   if (!dir) return false;
-  // One press = one hop. The browser fires keydown repeatedly while held (with
-  // event.repeat=true); the queue still allows chaining a second queued hop, which
-  // matches the course's input-queue spec.
+  // Crossy Road single-buffer pattern: cap queue at 1 to eliminate input pileup and lag
+  if (player.userData.queue.length >= 1) return false;
   player.userData.queue.push(dir);
   return true;
 }
@@ -115,4 +129,43 @@ export function getFacing(player) {
 // on its target so hop turning doesn't yank it mid-eat.
 export function lockFacing(player, seconds) {
   player.userData.facingLock = seconds;
+}
+// In src/components/Player.js
+
+export class Player {
+  // ... existing constructor & methods ...
+
+  /**
+   * Applies the Google Doodle-style defeat deflation expression.
+   * @param {number} p Progress from 0.0 (fresh defeat) to 1.0 (fully deflated)
+   */
+  deflate(p) {
+    // Smoothstep easing for organic deflation
+    const ease = p * p * (3 - 2 * p);
+
+    // Deflate vertically (-35%) and slightly spread horizontally (+15%)
+    const zDeflate = 1.0 - 0.35 * ease;
+    const xySpread = 1.0 + 0.15 * ease;
+
+    if (this.mesh) {
+      this.mesh.scale.set(
+        this.baseScale * xySpread,
+        this.baseScale * xySpread,
+        this.baseScale * zDeflate
+      );
+
+      // Tilt forward slightly in defeat
+      this.mesh.rotation.x = 0.25 * ease;
+    }
+  }
+
+  /**
+   * Resets Tode's transform and posture for a fresh run.
+   */
+  resetDefeat() {
+    if (this.mesh) {
+      this.mesh.scale.set(this.baseScale, this.baseScale, this.baseScale);
+      this.mesh.rotation.set(0, 0, 0);
+    }
+  }
 }
