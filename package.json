@@ -1,18 +1,26 @@
 {
-  "name": "froggit",
+  "name": "the-froggit",
+  "version": "8.0.0",
+  "description": "THE FROGGIT — Cross-Platform 3D Voxel Sky & Abyss Obstacle Campaign",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "serve": "python3 -m http.server 8080"
   },
+  "keywords": [
+    "threejs",
+    "webgl",
+    "voxel-game",
+    "action-platformer",
+    "webaudio",
+    "cross-platform",
+    "gamepad-api"
+  ],
+  "author": "THE FROGGIT Team",
+  "license": "MIT",
   "devDependencies": {
-    "vite": "^7.2.4"
-  },
-  "dependencies": {
-    "three": "^0.181.2"
-  },
-  "description": "FROGGIT — the frog that eats back. JetBrains Game Challenge entry."
+    "vite": "^8.3.4"
+  }
 }

@@ -1,0 +1,371 @@
+/**
+ * THE FROGGIT — Hero Lockup, 300% Floating Callouts, Safe-Area & Animations
+ * File: src/styles/animations.css
+ */
+/* =========================================================================
+   3. MONUMENTAL, ELEGANT GAME LOGO LOCKUP (Scaled Up for Hero Presence)
+   ========================================================================= */
+.logo-word-the {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.1rem, 6.6vw, 5.5rem);
+  line-height: 0.84;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 0%, #fef9c3 55%, #a7f3d0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 0 #0b1726) drop-shadow(0 12px 24px rgba(2, 8, 20, 0.55));
+}
+
+.logo-word-froggit {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(4.8rem, 11.4vw, 9.4rem);
+  line-height: 0.84;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 0%, #fef9c3 38%, #a7f3d0 74%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 6px 0 #0b1726) drop-shadow(0 18px 34px rgba(2, 8, 20, 0.62));
+}
+
+.landing-console-dock {
+  background: linear-gradient(180deg, rgba(13, 22, 35, 0.88) 0%, rgba(9, 15, 26, 0.94) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 24px 54px rgba(2, 6, 17, 0.62), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.play-cta-reference {
+  font-family: var(--font-display);
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  color: #032015;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 #047857, 0 10px 26px rgba(16, 185, 129, 0.30), 0 1px 0 rgba(255, 255, 255, 0.40) inset;
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+}
+.play-cta-reference:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 0 #047857, 0 14px 32px rgba(52, 211, 153, 0.42), 0 1px 0 rgba(255, 255, 255, 0.50) inset;
+}
+.play-cta-reference:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #047857, 0 6px 14px rgba(52, 211, 153, 0.22);
+}
+
+.landing-vignette {
+  background:
+    linear-gradient(180deg, rgba(6, 11, 19, 0.55) 0%, rgba(6, 11, 19, 0) 22%, rgba(6, 11, 19, 0) 70%, rgba(6, 11, 19, 0.72) 100%),
+    radial-gradient(circle at 30% 45%, rgba(6, 11, 19, 0.28) 0%, rgba(6, 11, 19, 0) 55%);
+}
+
+/* Hero Lockup Angled Perspective Axis (Preserves 3D Center-Right Preview) */
+.hero-axis-lockup {
+  transform: perspective(980px) rotateY(8deg) rotateZ(-2.2deg);
+  transform-origin: left center;
+}
+.hero-ribbon-tagline {
+  display: inline-block;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.88) 100%);
+  color: #022c22;
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: 1.5px solid #a7f3d0;
+  box-shadow: 0 4px 0 #064e3b, 0 12px 24px rgba(2, 6, 17, 0.55);
+  transform: rotate(-1.2deg) skewX(-6deg);
+}
+
+/* Independent Boxless Floating Texts & Surprise Emoji Burst Animations */
+@keyframes floatUpSituational {
+  0% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--popup-ox, 0px)), calc(var(--popup-oy, 0px) + 14px)) rotate(var(--popup-tilt, 0deg)) scale(0.55);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--popup-ox, 0px)), calc(var(--popup-oy, 0px) - 12px)) rotate(calc(var(--popup-tilt, 0deg) * -0.6)) scale(1.22);
+  }
+  34% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--popup-ox, 0px)), calc(var(--popup-oy, 0px) - 20px)) rotate(var(--popup-tilt, 0deg)) scale(1.0);
+  }
+  78% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--popup-ox, 0px)), calc(var(--popup-oy, 0px) - 44px)) rotate(var(--popup-tilt, 0deg)) scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--popup-ox, 0px)), calc(var(--popup-oy, 0px) - 68px)) rotate(var(--popup-tilt, 0deg)) scale(0.88);
+  }
+}
+@keyframes emojiSurpriseBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--ex, 0px) * 0.45), calc(-50% + var(--ey, 0px) * 0.45)) scale(1.35) rotate(calc(var(--erot, 45deg) * 0.5));
+  }
+  75% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--ex, 0px)), calc(-50% + var(--ey, 0px))) scale(1.05) rotate(var(--erot, 45deg));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--ex, 0px) * 1.25), calc(-50% + var(--ey, 0px) * 1.25 + 18px)) scale(0.4) rotate(calc(var(--erot, 45deg) * 1.4));
+  }
+}
+.surprise-emoji-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 26;
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.55));
+  animation: emojiSurpriseBurst 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes floatAboveFrogHead {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10%) scale(0.45);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-50%, -105%) scale(1.16);
+  }
+  32% {
+    opacity: 1;
+    transform: translate(-50%, -115%) scale(1.0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -135%) scale(1.0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -165%) scale(0.90);
+  }
+}
+.score-popup {
+  position: absolute;
+  pointer-events: none;
+  animation: floatAboveFrogHead 1.08s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  white-space: nowrap;
+  z-index: 28;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  font-weight: 900 !important;
+}
+.score-popup-combo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.3rem, 6.2vw, 4.95rem);
+  letter-spacing: -0.02em;
+  color: #fef08a;
+  -webkit-text-stroke: 3.5px #451a03;
+  text-shadow: 0 6px 0 #78350f, 0 12px 28px rgba(0, 0, 0, 0.92), 0 0 24px rgba(250, 204, 21, 0.55);
+}
+.score-popup-boss {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.6rem, 6.8vw, 5.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fff1f2;
+  -webkit-text-stroke: 4px #881337;
+  text-shadow: 0 7px 0 #4c0519, 0 0 32px rgba(244, 63, 94, 0.9), 0 14px 32px rgba(0, 0, 0, 0.95);
+}
+.score-popup-boost {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.1rem, 5.8vw, 4.65rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #6ee7b7;
+  -webkit-text-stroke: 3.5px #064e3b;
+  text-shadow: 0 6px 0 #022c22, 0 0 26px rgba(52, 211, 153, 0.85), 0 12px 26px rgba(0, 0, 0, 0.92);
+}
+.score-popup-checkpoint {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.4rem, 6.4vw, 5.1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #38bdf8;
+  -webkit-text-stroke: 3.8px #0c4a6e;
+  text-shadow: 0 6px 0 #082f49, 0 0 28px rgba(56, 189, 248, 0.9), 0 12px 28px rgba(0, 0, 0, 0.92);
+}
+.death-title-font {
+  font-family: var(--font-death-title);
+  letter-spacing: -0.025em;
+}
+.death-stat-font {
+  font-family: var(--font-death-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+@keyframes checkpointBannerPop {
+  0% { opacity: 0; transform: translate(-50%, -22px) rotate(-3deg) scale(0.62); }
+  18% { opacity: 1; transform: translate(-50%, 0px) rotate(2deg) scale(1.16); }
+  32% { opacity: 1; transform: translate(-50%, 0px) rotate(-2deg) scale(1.0); }
+  82% { opacity: 1; transform: translate(-50%, 0px) rotate(-2deg) scale(1.0); }
+  100% { opacity: 0; transform: translate(-50%, -18px) rotate(-2deg) scale(0.88); }
+}
+.animate-checkpoint-banner {
+  animation: checkpointBannerPop 2.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.score-popup-push {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.85rem, 5.2vw, 4.25rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fde68a;
+  -webkit-text-stroke: 3.4px #78350f;
+  text-shadow: 0 6px 0 #451a03, 0 0 24px rgba(245, 158, 11, 0.85), 0 12px 24px rgba(0, 0, 0, 0.92);
+}
+.score-popup-danger {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3.3rem, 6.2vw, 4.95rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fda4af;
+  -webkit-text-stroke: 3.8px #881337;
+  text-shadow: 0 6px 0 #4c0519, 0 0 28px rgba(244, 63, 94, 0.95), 0 12px 28px rgba(0, 0, 0, 0.95);
+}
+/* Safe-Area Notch & Home-Bar Insets for iOS & Android */
+.safe-top-pad {
+  padding-top: max(0.65rem, env(safe-area-inset-top));
+  padding-left: max(0.65rem, env(safe-area-inset-left));
+  padding-right: max(0.65rem, env(safe-area-inset-right));
+}
+.safe-bottom-pad {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+}
+
+/* Skin Selector Pill Button */
+.skin-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  transition: all 0.14s ease;
+  white-space: nowrap;
+}
+.skin-chip-btn:hover {
+  border-color: rgba(52, 211, 153, 0.55);
+  transform: translateY(-1px);
+}
+.skin-chip-btn.active {
+  background: rgba(16, 185, 129, 0.24);
+  border-color: #34d399;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.35);
+}
+
+@media (max-width: 639px) {
+  .score-popup-combo,
+  .score-popup-boss,
+  .score-popup-boost,
+  .score-popup-checkpoint,
+  .score-popup-push,
+  .score-popup-danger {
+    font-size: clamp(1.75rem, 7.6vw, 2.55rem);
+    -webkit-text-stroke: 2.4px #0f172a;
+  }
+  .logo-word-froggit {
+    font-size: clamp(3.5rem, 15.5vw, 5.2rem);
+  }
+  .logo-word-the {
+    font-size: clamp(2.1rem, 8.5vw, 3.2rem);
+  }
+}
+
+/* Compact Mobile Landscape Mode (Height < 520px) */
+@media (max-height: 520px) and (orientation: landscape) {
+  .logo-word-froggit {
+    font-size: clamp(2.6rem, 8.5vw, 4.2rem);
+  }
+  .logo-word-the {
+    font-size: clamp(1.5rem, 4.8vw, 2.4rem);
+  }
+  .landing-console-dock {
+    padding: 0.55rem 1rem !important;
+  }
+  .minimap-frame {
+    width: 72px;
+    height: 72px;
+  }
+  .hud-icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* Super Mario-Inspired Circular Iris Wipe & Course Clear Banner */
+#iris-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  background: radial-gradient(
+    circle var(--iris-radius, 150vmax) at var(--iris-x, 50%) var(--iris-y, 50%),
+    rgba(3, 7, 18, 0) 0%,
+    rgba(3, 7, 18, 0) calc(var(--iris-radius, 150vmax) - 6px),
+    rgba(52, 211, 153, 0.85) calc(var(--iris-radius, 150vmax) - 2px),
+    #030712 var(--iris-radius, 150vmax),
+    #030712 100%
+  );
+}
+
+@keyframes modalFadeIn {
+  0% { transform: translateY(8px) scale(0.985); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.animate-modal-pop {
+  animation: modalFadeIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes frogBlinkPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.75); }
+  50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+}
+.frog-locator-dot {
+  animation: frogBlinkPulse 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

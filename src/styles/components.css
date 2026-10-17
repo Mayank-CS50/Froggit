@@ -1,0 +1,303 @@
+/**
+ * THE FROGGIT — Reusable UI Panels, HUD Controls, Minimap & Touch D-Pad
+ * File: src/styles/components.css
+ */
+/* =========================================================================
+   2. REUSABLE UI SURFACES, INPUTS, SLIDERS & INTERACTIVE BUTTON STATES
+   ========================================================================= */
+.ui-panel {
+  background: var(--bg-surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.ui-settings-panel {
+  background: var(--bg-surface-opaque);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.ui-hud-surface {
+  background: linear-gradient(165deg, rgba(16, 26, 42, 0.86) 0%, rgba(10, 17, 28, 0.92) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(110, 231, 183, 0.24);
+  border-radius: 14px;
+  box-shadow:
+    0 10px 26px rgba(2, 6, 17, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.10) inset;
+}
+
+.ui-card {
+  background: var(--bg-surface-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.ui-input {
+  font-family: var(--font-sans);
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ui-input::placeholder {
+  color: #64748b;
+  font-weight: 400;
+}
+.ui-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.20);
+}
+
+.ui-btn-secondary {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  min-height: 44px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.ui-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.ui-btn-secondary:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-color: var(--border-focus);
+}
+.ui-btn-secondary:active {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(1px);
+}
+
+.ui-btn-primary {
+  font-family: var(--font-display);
+  font-weight: 700;
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  color: #042016;
+  border: 1px solid #6ee7b7;
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+  box-shadow: 0 3px 0 #047857, 0 8px 20px rgba(16, 185, 129, 0.24);
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+}
+.ui-btn-primary:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 3px 0 #047857, 0 10px 24px rgba(52, 211, 153, 0.32);
+}
+.ui-btn-primary:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.ui-btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #047857, 0 4px 10px rgba(16, 185, 129, 0.18);
+}
+
+/* Sculpted Square HUD Icon Buttons (Responsive 40x40px on mobile, 50x50px on desktop) */
+.hud-icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  background: linear-gradient(180deg, rgba(20, 33, 52, 0.90) 0%, rgba(10, 17, 28, 0.95) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(110, 231, 183, 0.30);
+  border-radius: 11px;
+  color: #6ee7b7;
+  box-shadow:
+    0 3px 0 rgba(4, 10, 18, 0.9),
+    0 10px 22px rgba(0, 0, 0, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.14) inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (min-width: 640px) {
+  .hud-icon-btn {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    border-radius: 13px;
+  }
+}
+.hud-icon-btn:hover {
+  background: linear-gradient(180deg, rgba(28, 46, 70, 0.95) 0%, rgba(14, 24, 38, 0.98) 100%);
+  border-color: rgba(52, 211, 153, 0.65);
+  color: #a7f3d0;
+  transform: translateY(-1px);
+}
+.hud-icon-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-color: var(--border-focus);
+}
+.hud-icon-btn:active {
+  transform: translateY(2px) scale(0.97);
+}
+
+/* Square Orthographic Minimap Frame (78x78px on mobile portrait, 106x106px on desktop) */
+.minimap-frame {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  padding: 3px;
+  background: linear-gradient(165deg, rgba(18, 30, 48, 0.92) 0%, rgba(9, 15, 26, 0.96) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(52, 211, 153, 0.38);
+  border-radius: 12px;
+  box-shadow:
+    0 3px 0 rgba(4, 10, 18, 0.9),
+    0 12px 28px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.14) inset;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+@media (min-width: 640px) {
+  .minimap-frame {
+    width: 106px;
+    height: 106px;
+    padding: 4px;
+    border-radius: 14px;
+  }
+}
+
+/* Ergonomic Mobile Touch D-Pad & Action Buttons */
+.touch-dpad-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(110, 231, 183, 0.38);
+  color: #ecfdf5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, background-color 0.12s ease;
+}
+.touch-dpad-btn:active {
+  transform: scale(0.91);
+  background: rgba(16, 185, 129, 0.45);
+  border-color: #6ee7b7;
+}
+.touch-grapple-btn {
+  width: 74px;
+  height: 74px;
+  border-radius: 999px;
+  background: linear-gradient(165deg, rgba(244, 114, 182, 0.88) 0%, rgba(219, 39, 119, 0.92) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 2px solid #fbcfe8;
+  color: #ffffff;
+  box-shadow: 0 5px 0 #831843, 0 12px 28px rgba(219, 39, 119, 0.48), 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.touch-grapple-btn:active {
+  transform: translateY(3px) scale(0.94);
+  box-shadow: 0 2px 0 #831843, 0 6px 14px rgba(219, 39, 119, 0.35);
+}
+
+/* Custom Range Sliders for Audio Settings */
+input[type="range"].ui-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].ui-slider:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 4px;
+}
+input[type="range"].ui-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #34d399;
+  border: 2px solid #062118;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  transition: transform 0.1s ease, background-color 0.15s ease;
+}
+input[type="range"].ui-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+  background: #6ee7b7;
+}
+input[type="range"].ui-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #34d399;
+  border: 2px solid #062118;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+/* Top-right minimal nav links on Landing Page */
+.landing-nav-link {
+  font-family: var(--font-sans);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  min-height: 44px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #f8fafc;
+  text-shadow: 0 1px 6px rgba(2, 6, 17, 0.55);
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.landing-nav-link:hover, .landing-nav-link:focus-visible {
+  color: #6ee7b7;
+  outline: none;
+}
+.landing-nav-link:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.landing-nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 2px;
+  background: linear-gradient(90deg, #34d399 0%, rgba(52, 211, 153, 0.2) 100%);
+  border-radius: 2px;
+}
+

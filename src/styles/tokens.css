@@ -1,0 +1,139 @@
+/**
+ * THE FROGGIT — Design Tokens, Typography & 6-Tier Z-Index Scale
+ * File: src/styles/tokens.css
+ */
+/* =========================================================================
+   1. CENTRALIZED PRODUCTION DESIGN TOKENS (2 Fonts, Restrained Palette)
+   ========================================================================= */
+:root {
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-death-title: 'Syne', 'Outfit', system-ui, sans-serif;
+  --font-death-num: 'Space Grotesk', 'JetBrains Mono', monospace;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Refined Translucent Obsidian Surfaces & Hairline Borders */
+  --bg-surface: rgba(11, 18, 29, 0.86);
+  --bg-surface-opaque: rgba(12, 19, 31, 0.96);
+  --bg-surface-elevated: rgba(18, 28, 44, 0.92);
+  --bg-surface-subtle: rgba(255, 255, 255, 0.04);
+  --bg-input: rgba(8, 14, 24, 0.92);
+
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-default: rgba(255, 255, 255, 0.15);
+  --border-mint: rgba(52, 211, 153, 0.36);
+  --border-focus: #34d399;
+
+  /* Elegant 3-Tier Text Hierarchy */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  /* Harmonious Gameplay Accents */
+  --accent-primary: #10b981;
+  --accent-primary-hover: #34d399;
+  --accent-primary-active: #059669;
+  --accent-secondary: #f59e0b;
+  --accent-danger: #f43f5e;
+  --accent-cyan: #38bdf8;
+
+  /* Radii & Soft Elevation */
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-panel: 0 24px 52px rgba(2, 6, 17, 0.58), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  --shadow-hud: 0 10px 28px rgba(2, 6, 17, 0.42);
+
+  /* Indexed 6-Tier Cross-Platform Z-Layer Hierarchy */
+  --z-canvas: 1;
+  --z-world-popups: 20;
+  --z-hud-bars: 30;
+  --z-touch-controls: 35;
+  --z-revive-iris: 40;
+  --z-modals: 50;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.5;
+  background: #0b1524;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+}
+
+/* Elegant Typographic Utility Classes */
+.typo-overline {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.typo-modal-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.2vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  color: var(--text-primary);
+}
+
+.typo-item-title {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.typo-item-desc {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+#game-canvas-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#game-canvas-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
