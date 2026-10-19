@@ -1,5 +1,7 @@
 # 🐸 Froggit — Sky and Abyss ([Play Live](https://thefroggit.netlify.app))
 
+  <img src="docs/froggit-banner.png" alt="Froggit — Sky and Abyss Banner" width="100%" />
+
 > **🎮 Playable Link:** [https://thefroggit.netlify.app/](https://thefroggit.netlify.app/)
 
 **Froggit — Sky and Abyss** is a 3D voxel obstacle-course game for the browser. Hop as **Tode** across floating islands, hills, and ferries—and choose whether to ascend into the clouds or dive into the deep ocean trenches.
