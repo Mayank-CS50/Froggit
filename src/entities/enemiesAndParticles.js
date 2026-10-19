@@ -954,6 +954,7 @@ function setArcadeAlertText(elOrId, rawText) {
 }
 
 function spawnFloatingPopup(worldPos, text, colorClass = '', situation = 'auto') {
+  if (state.mode === 'STORY_INTRO') return;
   const cleanText = String(text).replace(/^[⚡👑🌊🎉🚀💥💀👅✨☀️🚩💣]+\s*/u, '').trim().toUpperCase();
   let sizeTierClass = 'arcade-alert--md';
   let moodClass = 'arcade-alert--score';

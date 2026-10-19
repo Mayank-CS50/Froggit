@@ -7,25 +7,9 @@
 // =========================================================================
 window.addEventListener('keydown', (e) => {
   if (state.mode === 'STORY_INTRO' && !isAnyModalOpen()) {
-    if (e.code === 'Escape') {
-      e.preventDefault();
-      audio.playUiClick();
-      finishStoryIntroAndPlay();
-      return;
-    }
-    if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-      e.preventDefault();
-      advanceStoryIntroStep();
-      return;
-    }
-    if ((e.code === 'ArrowLeft' || e.code === 'KeyA') && state.storyIntroStep > 0) {
-      e.preventDefault();
-      state.storyIntroStep -= 1;
-      state.storyIntroStepTimer = 0;
-      setupStoryIntroBeatScene(state.storyIntroStep);
-      renderStoryIntroStepUI();
-      return;
-    }
+    e.preventDefault();
+    audio.playUiClick();
+    finishStoryIntroAndPlay();
     return;
   }
 
@@ -117,6 +101,12 @@ const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -1.0);
 let pointerDownPos = null;
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (state.mode === 'STORY_INTRO' && !isAnyModalOpen()) {
+    e.preventDefault();
+    audio.playUiClick();
+    finishStoryIntroAndPlay();
+    return;
+  }
   if (state.mode !== 'PLAYING' || isAnyModalOpen() || state.defeated || state.fallingDeath) return;
   pointerDownPos = { x: e.clientX, y: e.clientY, pointerType: e.pointerType };
   if (e.pointerType !== 'touch') {

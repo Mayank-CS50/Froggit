@@ -471,6 +471,7 @@ function reviveAtLastCheckpoint() {
 }
 
 function triggerFallOffTrack(reason = 'Fell Off the Track') {
+  if (state.mode === 'STORY_INTRO') return;
   if (state.fallingDeath || state.defeated || state.hoopTransitionActive) return;
   state.fallingDeath = true;
   state.fallVelocityY = -1.8;
@@ -538,6 +539,7 @@ function knockbackTode(pushDx, pushDz, label = 'Pushed by Obstacle') {
 }
 
 function damageTode(reason = 'Touched an Angry Enemy') {
+  if (state.mode === 'STORY_INTRO') return;
   if (state.invulnTimer > 0 || state.defeated || state.fallingDeath) return;
 
   if (state.lethalOneHitMode) {
@@ -775,93 +777,104 @@ function getStoryIntroTotalDuration() {
   return STORY_INTRO_CHAPTERS.reduce((acc, ch) => acc + (ch.duration || 4.0), 0);
 }
 
+function clearStoryShowcaseActors() {
+  if (window._storyShowcaseGroup) {
+    scene.remove(window._storyShowcaseGroup);
+    window._storyShowcaseGroup = null;
+  }
+  window._storyShowcaseActors = [];
+}
+
+function spawnStoryShowcaseActors() {
+  clearStoryShowcaseActors();
+  const grp = new THREE.Group();
+  const actors = [];
+  // Spawn lightweight showcase representatives of Sky Birds (+F) and Ocean Creatures (-F) around Row 42..46
+  const specs = [
+    { theme: 'heaven', type: 'swooper', x: 8.5, y: 4.8, z: -84.0, speed: 2.6, spanX: 3.2, phase: 0.0 },
+    { theme: 'heaven', type: 'sweeper', x: 14.5, y: 4.5, z: -86.0, speed: 2.8, spanX: 2.8, phase: 1.5 },
+    { theme: 'ocean',  type: 'zigzag',  x: 9.2, y: 3.4, z: -88.0, speed: 2.5, spanX: 3.0, phase: 0.8 },
+    { theme: 'ocean',  type: 'swooper', x: 14.0, y: 3.6, z: -83.0, speed: 2.4, spanX: 2.6, phase: 2.2 }
+  ];
+  specs.forEach((sp) => {
+    const built = buildThemeEnemyMesh(sp.theme, sp.type);
+    built.root.position.set(sp.x, sp.y, sp.z);
+    grp.add(built.root);
+    actors.push({
+      mesh: built.root,
+      leftWing: built.leftWing,
+      rightWing: built.rightWing,
+      homeX: sp.x,
+      homeY: sp.y,
+      homeZ: sp.z,
+      speed: sp.speed,
+      spanX: sp.spanX,
+      phase: sp.phase
+    });
+  });
+  scene.add(grp);
+  window._storyShowcaseGroup = grp;
+  window._storyShowcaseActors = actors;
+}
+
 function setupStoryIntroBeatScene(stepIdx) {
   const ch = STORY_INTRO_CHAPTERS[stepIdx] || STORY_INTRO_CHAPTERS[0];
-  state.storyIntroActionTriggered = false;
-
-  // Switch 3D world floor dynamically if this story beat showcases another realm (+2F Star Temple, -2F Kelp Trench, or 0F Ground Meadow)
-  const desiredFloor = typeof ch.floorLevel === 'number' ? ch.floorLevel : 0;
-  if (state.floorLevel !== desiredFloor) {
-    state.floorLevel = desiredFloor;
-    buildRoadwayWorld();
-    populateRoadwayBees();
-    audio.playPortalChord(desiredFloor >= 0);
-  }
-
-  // Apply showcase skin for this beat (or start with emerald for the cycling wardrobe beat)
-  if (ch.skin && ch.skin !== 'cycle' && FROG_SKINS[ch.skin]) {
-    state.activeSkin = ch.skin;
-    refreshFrogMaterialsForPack();
-  }
-
-  // Reset any active tongue or hop state between cuts
+  state.defeated = false;
+  state.fallingDeath = false;
+  state.fallVelocityY = 0;
   state.hopActive = false;
+  state.queuedHop = null;
   state.tongueState = 'idle';
   state.latchedBee = null;
+  state.bonkRecoilTimer = 0;
+  state.cameraTrauma = 0;
   tongueGroup.visible = false;
   tongueTipMesh.visible = false;
-  state.bonkRecoilTimer = 0;
-  state.chewTimer = 0;
-  camera.up.set(0, 1, 0);
 
-  // Position Tode & trigger beat-specific opening choreography
-  const placeTodeAtGrid = (gx, gz, yaw = Math.PI) => {
-    const sy = getSurfaceY(gx, gz);
-    state.gridX = gx;
-    state.gridZ = gz;
-    todeRoot.position.set(gx * TILE_SIZE, sy, -gz * TILE_SIZE);
-    todeRoot.rotation.set(0, yaw, 0);
-    state.targetYaw = yaw;
-    state.currentYaw = yaw;
-  };
-
-  switch (ch.todeAction) {
-    case 'hero_awaken':
-      placeTodeAtGrid(0, 0, 0.15);
-      audio.playFrogRibbit();
-      break;
-    case 'wardrobe_expressions':
-      placeTodeAtGrid(0, 0, 0.0);
-      state.chewTimer = 1.6;
-      break;
-    case 'first_person_hops':
-      placeTodeAtGrid(0, 0, Math.PI);
-      break;
-    case 'stalk_meadow_bugs':
-      placeTodeAtGrid(getTrackCenterCol(0, 4), 4, Math.PI);
-      break;
-    case 'demo_tongue_snipe':
-      placeTodeAtGrid(getTrackCenterCol(0, 4), 4, Math.PI);
-      break;
-    case 'demo_lily_zip':
-      placeTodeAtGrid(getTrackCenterCol(0, 9), 9, Math.PI);
-      break;
-    case 'sky_realm_showcase':
-      placeTodeAtGrid(getTrackCenterCol(2, 6), 6, Math.PI);
-      break;
-    case 'hazard_gauntlet_dodge':
-      placeTodeAtGrid(getTrackCenterCol(0, 34), 34, Math.PI);
-      break;
-    case 'checkpoint_celebrate':
-      placeTodeAtGrid(getTrackCenterCol(0, 27), 27, Math.PI);
-      break;
-    case 'ocean_realm_showcase':
-      placeTodeAtGrid(getTrackCenterCol(-2, 6), 6, Math.PI);
-      break;
-    case 'boss_faceoff':
-      placeTodeAtGrid(getTrackCenterCol(0, 88), 88, Math.PI);
-      break;
-    case 'portal_finale_pose':
-      placeTodeAtGrid(0, 92, Math.PI);
-      state.chewTimer = 2.0;
-      break;
-    default:
-      placeTodeAtGrid(0, 0, Math.PI);
-      break;
+  // Never rebuild the 96-row world mid-cutscene (eliminates all lag spikes!)
+  if (state.floorLevel !== 0) {
+    state.floorLevel = 0;
+    buildRoadwayWorld();
+    populateRoadwayBees();
   }
 
-  // Snap camera cleanly at cut boundaries when the camera mode or realm changes
-  if (ch.camStart && ch.camMode !== 'first_person_tode' && ch.camMode !== 'orbit_tode') {
+  if (ch.beat === 'biome_enemies') {
+    spawnStoryShowcaseActors();
+  } else {
+    clearStoryShowcaseActors();
+  }
+
+  // Ensure all bees are alive & unlatched for clean visual presentation
+  bees.forEach((b) => {
+    b.alive = true;
+    b.latched = false;
+    b.mesh.visible = true;
+    if (b.type === 'boss') {
+      b.hp = 3;
+      if (b.shieldOrbs) b.shieldOrbs.forEach((o) => { o.visible = true; });
+    }
+  });
+
+  // Ensure safe tile placement for Tode on every shot
+  const gx = ch.frogPos ? ch.frogPos.gx : 0;
+  const gz = ch.frogPos ? ch.frogPos.gz : 0;
+  const safeX = (validRoadwayTiles.has(tileKey(gx, gz)) && !blockedTiles.has(tileKey(gx, gz)))
+    ? gx
+    : findSafeReviveColumn(gz);
+  state.gridX = safeX;
+  state.gridZ = gz;
+  const surfY = getSurfaceY(safeX, gz);
+  todeRoot.position.set(safeX * TILE_SIZE, surfY, -gz * TILE_SIZE);
+  todeRoot.rotation.set(0, ch.frogYaw !== undefined ? ch.frogYaw : Math.PI, 0);
+  state.targetYaw = ch.frogYaw !== undefined ? ch.frogYaw : Math.PI;
+  state.currentYaw = state.targetYaw;
+  state.zStretch = 1.0;
+  state.xySquash = 1.0;
+  state.demoActionDone = false;
+  state.demoSecondaryDone = false;
+
+  // Snap camera cleanly on shot 0 so there is no wild whip-pan
+  if (stepIdx === 0) {
     camera.position.set(ch.camStart.x, ch.camStart.y, ch.camStart.z);
     if (!window._storyLookVec) window._storyLookVec = new THREE.Vector3();
     window._storyLookVec.set(ch.lookStart.x, ch.lookStart.y, ch.lookStart.z);
@@ -870,42 +883,11 @@ function setupStoryIntroBeatScene(stepIdx) {
 }
 
 function renderStoryIntroStepUI() {
-  const ch = STORY_INTRO_CHAPTERS[state.storyIntroStep] || STORY_INTRO_CHAPTERS[0];
-  const stepEl = document.getElementById('story-intro-step');
-  const povEl = document.getElementById('story-intro-pov');
-  const realmPillEl = document.getElementById('story-intro-realm-pill');
-  const badgeEl = document.getElementById('story-intro-badge');
-  const titleEl = document.getElementById('story-intro-title');
-  const textEl = document.getElementById('story-intro-text');
-  const hintEl = document.getElementById('story-intro-hint');
-  const dotsEl = document.getElementById('story-intro-dots');
-
-  if (stepEl) stepEl.textContent = ch.step;
-  if (povEl) povEl.textContent = ch.povLabel || '🎥 CINEMATIC CAMERA';
-  if (realmPillEl) {
-    const fCfg = FLOORS[ch.floorLevel || 0] || FLOORS[0];
-    const codeStr = (ch.floorLevel || 0) === 0 ? '0F' : ((ch.floorLevel > 0 ? '+' : '') + ch.floorLevel + 'F');
-    realmPillEl.textContent = `${fCfg.icon} ${fCfg.name} (${codeStr})`;
-  }
-  if (badgeEl) badgeEl.textContent = ch.badge;
-  if (titleEl) titleEl.textContent = ch.title;
-  if (textEl) {
-    textEl.style.opacity = '0.25';
-    textEl.style.transform = 'translateY(4px)';
-    textEl.textContent = ch.narrator || ch.text || '';
-    requestAnimationFrame(() => {
-      textEl.style.opacity = '1';
-      textEl.style.transform = 'translateY(0)';
-    });
-  }
-  if (hintEl) hintEl.textContent = ch.hint;
-
-  // Render 4 chapter indicator pills highlighting which of the 4 chapters is active
-  if (dotsEl) {
-    const activeChap = ch.chapterNum || 1;
-    dotsEl.innerHTML = [1, 2, 3, 4].map((cNum) => `
-      <span class="h-1.5 rounded-full transition-all duration-300 ${cNum === activeChap ? 'w-7 bg-emerald-400 shadow-[0_0_8px_#34d399]' : (cNum < activeChap ? 'w-3 bg-emerald-400/50' : 'w-2 bg-white/20')}"></span>
-    `).join('');
+  // No captions or sub-text during the introductory animation
+  const overlay = document.getElementById('story-intro-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
   }
 }
 
@@ -915,7 +897,6 @@ function advanceStoryIntroStep() {
     state.storyIntroStep += 1;
     state.storyIntroStepTimer = 0;
     setupStoryIntroBeatScene(state.storyIntroStep);
-    renderStoryIntroStepUI();
   } else {
     finishStoryIntroAndPlay();
   }
@@ -924,33 +905,58 @@ function advanceStoryIntroStep() {
 function finishStoryIntroAndPlay() {
   if (state.mode !== 'STORY_INTRO') return;
   state.storyIntroSeen = true;
-  persistSettings();
-
-  // Restore player's selected skin and 0F Ground Meadow starting state
-  state.activeSkin = state.storyIntroSavedSkin || 'emerald';
-  state.floorLevel = 0;
-  state.hopActive = false;
-  state.tongueState = 'idle';
-  state.latchedBee = null;
-  tongueGroup.visible = false;
-  tongueTipMesh.visible = false;
-  camera.up.set(0, 1, 0);
-
-  buildRoadwayWorld();
-  populateRoadwayBees();
-
-  state.gridX = 0;
-  state.gridZ = 0;
-  todeRoot.position.set(0, 0, 0);
-  todeRoot.rotation.set(0, Math.PI, 0);
-  state.targetYaw = Math.PI;
-  state.currentYaw = Math.PI;
-
+  clearStoryShowcaseActors();
   const overlay = document.getElementById('story-intro-overlay');
   if (overlay) {
     overlay.classList.add('hidden');
     overlay.classList.remove('flex');
   }
+  hideDeathReviveBanner();
+
+  // Since floorLevel is already 0, we do NOT need a laggy world rebuild here!
+  if (state.floorLevel !== 0) {
+    state.floorLevel = 0;
+    buildRoadwayWorld();
+  }
+  // Reset any bee eaten during the demo tongue shot
+  bees.forEach((b) => {
+    b.alive = true;
+    b.latched = false;
+    b.mesh.visible = true;
+    b.mesh.position.set(b.homeX, (b.baseY || 0) + 1.30, b.homeZ);
+  });
+  grappleTargets.forEach((gt) => {
+    gt.alive = true;
+    gt.latched = false;
+    gt.passed = false;
+    gt.mesh.visible = true;
+    if (gt.ringMesh) gt.ringMesh.visible = true;
+    if (gt.lotusBulb && gt.activeLotusMat) gt.lotusBulb.material = gt.activeLotusMat;
+  });
+
+  state.score = 0;
+  state.beesEaten = 0;
+  state.combo = 0;
+  state.scaleMultiplier = 1.0;
+  state.defeated = false;
+  state.fallingDeath = false;
+  state.fallVelocityY = 0;
+  state.gridX = 0;
+  state.gridZ = 0;
+  state.lastCheckpointZ = 0;
+  state.hopActive = false;
+  state.queuedHop = null;
+  state.tongueState = 'idle';
+  state.latchedBee = null;
+  tongueGroup.visible = false;
+  tongueTipMesh.visible = false;
+  todeRoot.position.set(0, 0, 0);
+  todeRoot.rotation.set(0, Math.PI, 0);
+  state.targetYaw = Math.PI;
+  state.currentYaw = Math.PI;
+  state.zStretch = 1.0;
+  state.xySquash = 1.0;
+
   document.getElementById('gameplay-hud').classList.remove('hidden');
   document.body.classList.add('is-playing-touch');
   state.mode = 'TRANSITION_TO_PLAY';
@@ -975,18 +981,10 @@ function startPlayFromLanding(initialFloor = 0, forceStoryIntro = true) {
     if (forceStoryIntro && initialFloor === 0 && !state.storyIntroSeen) {
       state.mode = 'STORY_INTRO';
       state.previousModeBeforePause = 'STORY_INTRO';
-      state.storyIntroSavedSkin = state.activeSkin || 'emerald';
       state.storyIntroStep = 0;
       state.storyIntroStepTimer = 0;
-      state.storyIntroTotalTimer = 0;
-      state.storyIntroTotalDuration = getStoryIntroTotalDuration();
+      state.storyIntroElapsed = 0;
       setupStoryIntroBeatScene(0);
-      renderStoryIntroStepUI();
-      const overlay = document.getElementById('story-intro-overlay');
-      if (overlay) {
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-      }
     } else {
       state.targetYaw = Math.PI;
       state.mode = 'TRANSITION_TO_PLAY';
@@ -997,5 +995,5 @@ function startPlayFromLanding(initialFloor = 0, forceStoryIntro = true) {
       updateHUD();
       renderLiveMinimap();
     }
-  }, 420);
+  }, 320);
 }
