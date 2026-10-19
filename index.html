@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>THE FROGGIT — Sky & Abyss Obstacle Campaign</title>
+  <title>Froggit — Sky and Abyss</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,6 +85,93 @@
     </button>
   </div>
 
+
+  <!-- Left-Corner Circular Music On/Off Toggle Button (Always Accessible) -->
+  <button
+    id="btn-corner-music-toggle"
+    type="button"
+    class="corner-music-toggle-btn"
+    aria-pressed="true"
+    title="Toggle Music On / Off [M]"
+    aria-label="Toggle Music On or Off"
+  >
+    <!-- Speaker On Icon -->
+    <svg id="icon-corner-music-on" class="w-5 h-5 drop-shadow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+    </svg>
+    <!-- Speaker Muted Icon -->
+    <svg id="icon-corner-music-off" class="w-5 h-5 drop-shadow hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+  </button>
+
+  <!-- 3D World Storytelling Intro Overlay (Familiarizes Player With the World & Goal) -->
+  <section
+    id="story-intro-overlay"
+    class="fixed inset-0 z-40 hidden flex-col justify-between p-4 sm:p-8 safe-top-pad safe-bottom-pad pointer-events-none"
+    aria-label="3D World Story Introduction"
+  >
+    <!-- Top Bar: Title Badge + Skip Intro Button -->
+    <div class="max-w-5xl w-full mx-auto flex items-center justify-between gap-3 pointer-events-auto">
+      <div class="ui-panel px-3.5 py-2 flex items-center gap-2.5 bg-slate-950/80 border-white/15">
+        <span class="text-base leading-none">🐸</span>
+        <span class="font-display font-bold text-xs sm:text-sm tracking-wide text-emerald-300">
+          Froggit — Sky and Abyss
+        </span>
+        <span class="text-white/25">•</span>
+        <span id="story-intro-step" class="font-mono-num text-xs font-bold text-amber-300">1 / 4</span>
+      </div>
+
+      <button
+        id="btn-story-intro-skip"
+        type="button"
+        class="ui-btn-secondary px-4 py-2 rounded-xl font-mono-num text-xs font-bold text-slate-200 hover:text-white flex items-center gap-1.5 shadow-lg"
+      >
+        <span>Skip Intro</span>
+        <span class="text-[10px] text-slate-400">[ESC]</span>
+      </button>
+    </div>
+
+    <!-- Bottom Storytelling Card (Centered, Leaving 3D Camera Pan Unobstructed) -->
+    <div class="max-w-xl w-full mx-auto mb-2 sm:mb-4 pointer-events-auto">
+      <div class="story-intro-card p-5 sm:p-6 text-white">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span id="story-intro-badge" class="px-2.5 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/40 font-mono-num text-[10px] font-extrabold uppercase tracking-widest text-emerald-300">
+            🌿 THE FLOATING REALMS
+          </span>
+          <div id="story-intro-dots" class="flex items-center gap-1.5"></div>
+        </div>
+
+        <h2 id="story-intro-title" class="font-display text-xl sm:text-2xl font-black tracking-tight text-white mb-2">
+          Welcome to Sky &amp; Abyss
+        </h2>
+
+        <p id="story-intro-text" class="text-xs sm:text-sm text-slate-200 leading-relaxed mb-3.5">
+          This is Tode. Ahead lies a 96-row floating causeway of rolling hills, split-island forks, and moving ferries suspended between the clouds and the deep sea.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+          <div id="story-intro-hint" class="font-mono-num text-[11px] font-semibold text-amber-200">
+            Use WASD, Arrow Keys, or Swipe to hop tile by tile.
+          </div>
+
+          <button
+            id="btn-story-intro-next"
+            type="button"
+            class="ui-btn-primary px-5 py-2.5 rounded-xl font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 shrink-0"
+          >
+            <span id="story-intro-next-label">Next</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================================================================== -->
   <!-- 1. PRODUCTION LANDING PAGE (Reference Image Composition & Shader Scene)-->
   <!-- ===================================================================== -->
@@ -122,6 +209,15 @@
           </svg>
         </button>
 
+        <button id="btn-landing-story" type="button" class="hud-icon-btn" title="Watch 3D World Intro" aria-label="Watch 3D World Intro">
+          <svg class="w-5 h-5 text-cyan-300 drop-shadow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+            <line x1="7" y1="2" x2="7" y2="22"></line>
+            <line x1="17" y1="2" x2="17" y2="22"></line>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+          </svg>
+        </button>
+
         <button id="btn-landing-howto" type="button" class="hud-icon-btn" title="How to Play Guide [H]" aria-label="How to Play Guide">
           <svg class="w-5 h-5 text-amber-300 drop-shadow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"></circle>
@@ -143,23 +239,11 @@
     <div class="relative z-10 max-w-7xl w-full mx-auto mt-2 sm:mt-4 mb-auto grid grid-cols-1 lg:grid-cols-12 items-start pointer-events-none">
       <div class="lg:col-span-6 flex flex-col items-start text-left">
         <div class="hero-axis-lockup inline-flex flex-col items-start">
-          <div class="relative flex items-center gap-3 mb-0.5 lg:ml-2">
-            <span class="px-2.5 py-0.5 rounded-md bg-amber-400/20 border border-amber-300/50 font-mono-num text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-amber-200 shadow">
-              3D Voxel Action
-            </span>
-            <span class="logo-word-the !text-3xl sm:!text-5xl">THE</span>
-            <svg class="w-9 h-9 sm:w-12 sm:h-12 text-amber-300 drop-shadow-[0_4px_0_#0b1726]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M2 19h20v2H2v-2zM2 7l5 5 5-7 5 7 5-5v10H2V7z"/>
-            </svg>
-          </div>
           <h1 class="logo-word-froggit m-0">FROGGIT</h1>
 
-          <div class="mt-3 flex flex-wrap items-center justify-start gap-3">
-            <span class="hero-ribbon-tagline text-xs sm:text-sm">
-              THE FROG THAT EATS BACK
-            </span>
-            <span class="px-3 py-1 rounded-lg bg-slate-950/80 border border-emerald-400/40 font-mono-num text-[10px] sm:text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 shadow-lg">
-              7-Tier Sky &amp; Abyss
+          <div class="mt-2.5 flex flex-wrap items-center justify-start gap-2.5">
+            <span class="px-3.5 py-1.5 rounded-xl bg-slate-950/85 border border-emerald-400/45 font-display text-sm sm:text-lg font-extrabold uppercase tracking-[0.22em] text-emerald-300 shadow-lg">
+              Sky and Abyss
             </span>
           </div>
         </div>
@@ -171,7 +255,7 @@
     <div class="relative z-10 max-w-7xl w-full mx-auto mt-auto pt-2 flex items-end justify-start pointer-events-none">
       <div
         id="landing-start-dock"
-        class="pointer-events-auto inline-grid gap-2 items-stretch"
+        class="pointer-events-auto inline-grid gap-2 items-stretch pl-14 sm:pl-16"
         style="grid-template-columns: minmax(0, max-content); width: fit-content;"
       >
         <!-- Translucent Glassmorphic START Button Hugging Only the Span of START Text -->
@@ -352,7 +436,7 @@
     <!-- Dismissible Bottom-Left Quick "How to Play" Helper Card (Players can shut down anytime!) -->
     <aside
       id="hud-howto-card"
-      class="pointer-events-auto fixed bottom-4 left-4 z-30 max-w-xs w-[290px] sm:w-[320px] ui-hud-surface p-3.5 text-white border border-emerald-400/35 shadow-2xl transition-all duration-200"
+      class="pointer-events-auto fixed bottom-4 left-16 sm:left-20 z-30 max-w-xs w-[290px] sm:w-[320px] ui-hud-surface p-3.5 text-white border border-emerald-400/35 shadow-2xl transition-all duration-200"
       aria-label="Quick How to Play Guide"
     >
       <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-white/10">
@@ -785,7 +869,7 @@
               Interactive Field Manual • Press [H] or [ESC]
             </span>
             <h2 id="howto-modal-title" class="text-xl sm:text-2xl font-bold tracking-tight">
-              HOW TO PLAY — THE FROGGIT
+              HOW TO PLAY — FROGGIT: SKY AND ABYSS
             </h2>
           </div>
         </div>

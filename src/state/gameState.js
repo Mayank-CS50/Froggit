@@ -1,5 +1,48 @@
+const STORY_INTRO_CHAPTERS = [
+  {
+    step: '1 / 4',
+    badge: '🌿 THE FLOATING REALMS',
+    title: 'Welcome to Sky & Abyss',
+    text: 'This is Tode. Ahead lies a 96-row floating causeway of rolling hills, split-island forks, and moving ferries suspended between the clouds and the deep sea.',
+    hint: 'Use WASD, Arrow Keys, or Swipe to hop tile by tile.',
+    camPos: { x: -3.2, y: 3.4, z: 6.2 },
+    lookAt: { x: 0.0, y: 1.0, z: -4.0 },
+    fov: 40
+  },
+  {
+    step: '2 / 4',
+    badge: '👅 TONGUE GRAPPLE & LILY-POSTS',
+    title: 'Snipe Bugs & Zip Across Chasms',
+    text: 'Touching patrolling creatures directly is lethal—but your pink tongue turns the tables. Whip it to catch bugs mid-air for combos, reel in ✨ Golden Fireflies, or latch onto 🪷 Lily-Posts to zip across gaps.',
+    hint: 'Press SPACE or Left-Click (or tap 👅 WHIP) to fire your tongue.',
+    camPos: { x: -7.5, y: 6.8, z: -13.0 },
+    lookAt: { x: -6.0, y: 1.5, z: -24.0 },
+    fov: 44
+  },
+  {
+    step: '3 / 4',
+    badge: '💣 KNOCKBACK TRAPS & CHECKPOINTS',
+    title: 'Watch Your Footing on the Ridge',
+    text: 'Bastion Cannons, Swinging Axes, Thwomps, and Rolling Logs won\'t instantly kill you—they physically shove Tode! Time your hops so you aren\'t pushed off an unfenced ledge, and cross 🚩 Checkpoints to save your spot.',
+    hint: 'Press ENTER ↵ anytime after a wipeout to revive at your last 🚩 Checkpoint.',
+    camPos: { x: 8.5, y: 8.2, z: -56.0 },
+    lookAt: { x: 2.0, y: 1.8, z: -72.0 },
+    fov: 45
+  },
+  {
+    step: '4 / 4',
+    badge: '👑 THE GOAL — SKY OR ABYSS',
+    title: 'Shatter the Guardian & Choose Your Hoop',
+    text: 'At the end of every realm, strike the Realm Guardian 3 times with your tongue to break its shields. Then leap through the ☀️ Sky Hoop to ascend toward the Sun Crown (+3) or the 🌊 Ocean Hoop to dive into the Mariana Abyss (-3)!',
+    hint: 'Conquer Floor +3 or -3 to reach the Victory Sanctuary.',
+    camPos: { x: 0.0, y: 7.5, z: -168.0 },
+    lookAt: { x: 0.0, y: 2.4, z: -190.0 },
+    fov: 44
+  }
+];
+
 /**
- * THE FROGGIT — Game Constants, 7-Realm Floors, 5 Unlockable Skins & State Store
+ * Froggit — Sky and Abyss — Game Constants, 7-Realm Floors, 5 Unlockable Skins & State Store
  * File: src/state/gameState.js
  */
 // =========================================================================
@@ -71,7 +114,10 @@ const FLOORS = {
 };
 
 const state = {
-  mode: 'LANDING', // 'LANDING' | 'TRANSITION_TO_PLAY' | 'PLAYING' | 'PAUSED'
+  mode: 'LANDING', // 'LANDING' | 'STORY_INTRO' | 'TRANSITION_TO_PLAY' | 'PLAYING' | 'PAUSED'
+  storyIntroStep: 0,
+  storyIntroStepTimer: 0,
+  storyIntroSeen: false,
   previousModeBeforePause: 'LANDING',
   transitionProgress: 0,
   playerName: '',

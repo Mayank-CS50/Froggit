@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Reusable UI Surfaces, HUD Buttons, Minimap Frame & Touch Controls
+ * Froggit — Sky and Abyss: Reusable UI Surfaces, HUD Buttons, Minimap Frame & Touch Controls
  * File: src/styles/components.css
  */
 /* =========================================================================
@@ -299,4 +299,60 @@ input[type="range"].ui-slider::-moz-range-thumb {
   height: 2px;
   background: linear-gradient(90deg, #34d399 0%, rgba(52, 211, 153, 0.2) 100%);
   border-radius: 2px;
+}
+
+
+/* =========================================================================
+   3. LEFT-CORNER CIRCULAR MUSIC TOGGLE BUTTON & 3D STORY INTRO CARD
+   ========================================================================= */
+.corner-music-toggle-btn {
+  position: fixed;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  left: max(1rem, env(safe-area-inset-left));
+  z-index: 46;
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: linear-gradient(165deg, rgba(16, 28, 46, 0.92) 0%, rgba(9, 15, 26, 0.96) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(52, 211, 153, 0.48);
+  color: #6ee7b7;
+  box-shadow:
+    0 4px 0 rgba(4, 10, 18, 0.9),
+    0 12px 26px rgba(0, 0, 0, 0.52),
+    0 1px 0 rgba(255, 255, 255, 0.16) inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.corner-music-toggle-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  border-color: rgba(110, 231, 183, 0.85);
+  color: #a7f3d0;
+}
+.corner-music-toggle-btn:active {
+  transform: translateY(1px) scale(0.96);
+}
+.corner-music-toggle-btn.is-muted {
+  border-color: rgba(244, 63, 94, 0.55);
+  color: #fda4af;
+}
+@media (max-width: 767px) {
+  body.is-playing-touch .corner-music-toggle-btn {
+    bottom: calc(max(0.75rem, env(safe-area-inset-bottom)) + 168px);
+  }
+}
+
+.story-intro-card {
+  background: linear-gradient(165deg, rgba(12, 20, 34, 0.88) 0%, rgba(7, 12, 22, 0.94) 100%);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1.5px solid rgba(110, 231, 183, 0.38);
+  border-radius: 22px;
+  box-shadow:
+    0 20px 50px rgba(2, 6, 17, 0.68),
+    0 1px 0 rgba(255, 255, 255, 0.14) inset;
 }

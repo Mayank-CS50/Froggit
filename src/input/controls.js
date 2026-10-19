@@ -1,11 +1,39 @@
 /**
- * THE FROGGIT — Keyboard, Mouse Raycaster, Touch D-Pad/Swipe & Modal Event Listeners
+ * Froggit — Sky and Abyss — Keyboard, Mouse Raycaster, Touch D-Pad/Swipe & Modal Event Listeners
  * File: src/input/controls.js
  */
 // =========================================================================
 // 12. INPUT & UI EVENT LISTENERS (Keyboard, Mouse, Touch Swipe/Tap, Modals)
 // =========================================================================
 window.addEventListener('keydown', (e) => {
+  if (state.mode === 'STORY_INTRO' && !isAnyModalOpen()) {
+    if (e.code === 'Escape') {
+      e.preventDefault();
+      finishStoryIntroAndPlay();
+      return;
+    }
+    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'ArrowRight' || e.code === 'KeyD') {
+      e.preventDefault();
+      advanceStoryIntroStep();
+      return;
+    }
+    if ((e.code === 'ArrowLeft' || e.code === 'KeyA') && state.storyIntroStep > 0) {
+      e.preventDefault();
+      state.storyIntroStep -= 1;
+      state.storyIntroStepTimer = 0;
+      renderStoryIntroStepUI();
+      return;
+    }
+  }
+
+  if (e.code === 'KeyM' && document.activeElement !== document.getElementById('input-player-name')) {
+    e.preventDefault();
+    audio.toggleMute();
+    persistSettings();
+    syncSettingsModalUI();
+    return;
+  }
+
   if (e.code === 'Escape') {
     e.preventDefault();
     const lbModal = document.getElementById('leaderboard-modal');
@@ -339,6 +367,13 @@ document.getElementById('btn-confirm-restart-no').addEventListener('click', () =
 
 function returnToLandingScreen() {
   closeAllModals(false);
+  hideDeathReviveBanner();
+  const storyOverlay = document.getElementById('story-intro-overlay');
+  if (storyOverlay) {
+    storyOverlay.classList.add('hidden');
+    storyOverlay.classList.remove('flex');
+  }
+  document.body.classList.remove('is-playing-touch');
   state.mode = 'LANDING';
   state.previousModeBeforePause = 'LANDING';
   state.defeated = false;
@@ -352,6 +387,7 @@ function returnToLandingScreen() {
     buildRoadwayWorld();
     populateRoadwayBees();
   }
+  audio.restartCalmTheme();
   todeRoot.position.set(0.65, 0, 0.35);
   todeRoot.rotation.set(0, -0.38, 0);
   state.targetYaw = -0.38;
@@ -406,3 +442,41 @@ document.getElementById('btn-victory-map').addEventListener('click', () => {
   m.classList.add('flex');
 });
 document.getElementById('btn-victory-home').addEventListener('click', returnToLandingScreen);
+
+
+// Left-Corner Circular Music Toggle Button & 3D Story Intro Buttons
+const btnCornerMusic = document.getElementById('btn-corner-music-toggle');
+if (btnCornerMusic) {
+  btnCornerMusic.addEventListener('click', (e) => {
+    e.stopPropagation();
+    audio.toggleMute();
+    persistSettings();
+    syncSettingsModalUI();
+    if (!audio.muted) audio.playStickyPop();
+  });
+}
+
+const btnStoryNext = document.getElementById('btn-story-intro-next');
+if (btnStoryNext) {
+  btnStoryNext.addEventListener('click', (e) => {
+    e.stopPropagation();
+    advanceStoryIntroStep();
+  });
+}
+
+const btnStorySkip = document.getElementById('btn-story-intro-skip');
+if (btnStorySkip) {
+  btnStorySkip.addEventListener('click', (e) => {
+    e.stopPropagation();
+    audio.playUiClick();
+    finishStoryIntroAndPlay();
+  });
+}
+
+const btnReplayStory = document.getElementById('btn-landing-story');
+if (btnReplayStory) {
+  btnReplayStory.addEventListener('click', () => {
+    state.storyIntroSeen = false;
+    startPlayFromLanding(0, true);
+  });
+}

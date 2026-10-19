@@ -100,7 +100,14 @@ function copyDir(src, dest) {
 copyDir(path.join(rootDir, 'src'), path.join(distDir, 'src'));
 console.log('✅ Copied modular source files to dist/src/');
 
-// 7. Copy docs if present
+// 7. Copy assets if present
+const assetsSrc = path.join(rootDir, 'assets');
+if (fs.existsSync(assetsSrc)) {
+  copyDir(assetsSrc, path.join(distDir, 'assets'));
+  console.log('✅ Copied assets to dist/assets/');
+}
+
+// 8. Copy docs if present
 const docsSrc = path.join(rootDir, 'docs');
 if (fs.existsSync(docsSrc)) {
   copyDir(docsSrc, path.join(distDir, 'docs'));
@@ -108,3 +115,4 @@ if (fs.existsSync(docsSrc)) {
 }
 
 console.log('🎉 Production build completed successfully! Deploy directory dist is ready.');
+

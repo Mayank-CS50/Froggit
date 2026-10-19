@@ -1,27 +1,16 @@
 {
-  "name": "the-froggit",
-  "version": "8.0.0",
-  "description": "THE FROGGIT — Cross-Platform 3D Voxel Sky & Abyss Obstacle Campaign",
+  "name": "froggit-sky-and-abyss",
+  "version": "2.0.0",
+  "description": "Froggit \u2014 Sky and Abyss: A 3D WebGL voxel obstacle-course game in the browser.",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "node scripts/build.js",
-    "preview": "vite preview",
-    "serve": "python3 -m http.server 8080"
+    "preview": "vite preview"
   },
-  "keywords": [
-    "threejs",
-    "webgl",
-    "voxel-game",
-    "action-platformer",
-    "webaudio",
-    "cross-platform",
-    "gamepad-api"
-  ],
-  "author": "THE FROGGIT Team",
-  "license": "MIT",
   "devDependencies": {
     "vite": "^5.4.0"
-  }
+  },
+  "license": "MIT"
 }

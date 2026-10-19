@@ -1,5 +1,23 @@
+function syncCornerMusicButtonUI() {
+  const cornerBtn = document.getElementById('btn-corner-music-toggle');
+  const iconOn = document.getElementById('icon-corner-music-on');
+  const iconOff = document.getElementById('icon-corner-music-off');
+  if (!cornerBtn) return;
+  cornerBtn.setAttribute('aria-pressed', String(!audio.muted));
+  cornerBtn.title = audio.muted ? 'Unmute Music & Audio [M]' : 'Mute Music & Audio [M]';
+  if (audio.muted) {
+    cornerBtn.classList.add('is-muted');
+    if (iconOn) iconOn.classList.add('hidden');
+    if (iconOff) iconOff.classList.remove('hidden');
+  } else {
+    cornerBtn.classList.remove('is-muted');
+    if (iconOn) iconOn.classList.remove('hidden');
+    if (iconOff) iconOff.classList.add('hidden');
+  }
+}
+
 /**
- * THE FROGGIT — Core Hopping, Forward-Only Tongue Grapple, Knockback & Modal Flows
+ * Froggit — Sky and Abyss — Core Hopping, Forward-Only Tongue Grapple, Knockback & Modal Flows
  * File: src/gameplay/mechanicsAndModals.js
  */
 // =========================================================================
@@ -148,6 +166,7 @@ function syncSettingsModalUI() {
   }
 
   syncHudGuideCardVisibility();
+  syncCornerMusicButtonUI();
 }
 
 let checkpointBannerTimeout = null;
@@ -438,6 +457,7 @@ function reviveAtLastCheckpoint() {
 
   camera.fov = 42;
   camera.updateProjectionMatrix();
+  audio.restartCalmTheme();
   audio.playStartHorn();
   spawnPollenBurst(todeRoot.position.clone().add(new THREE.Vector3(0, 1.0, 0)), 14);
   spawnFloatingPopup(
@@ -455,6 +475,7 @@ function triggerFallOffTrack(reason = 'Fell Off the Track') {
   state.fallingDeath = true;
   state.fallVelocityY = -1.8;
   state.deathSlowMoTimer = 1.35;
+  audio.stopBgm();
   showDeathReviveBanner();
   audio.playFallWhistle();
   spawnFloatingPopup(todeRoot.position.clone().add(new THREE.Vector3(0, 1.2, 0)), reason, '', 'danger');
@@ -540,6 +561,7 @@ function damageTode(reason = 'Touched an Angry Enemy') {
 
 function triggerDefeatCinematic(reason = 'Eliminated') {
   state.defeated = true;
+  audio.stopBgm();
   state.defeatFov = camera.fov;
   showDeathReviveBanner();
   recordScoreToLeaderboard();
@@ -585,7 +607,7 @@ function closeAllModals(restorePreviousMode = true) {
     }
   });
   if (restorePreviousMode && state.mode === 'PAUSED') {
-    state.mode = state.previousModeBeforePause === 'LANDING' ? 'LANDING' : 'PLAYING';
+    state.mode = (state.previousModeBeforePause === 'LANDING' || state.previousModeBeforePause === 'STORY_INTRO') ? state.previousModeBeforePause : 'PLAYING';
   }
 }
 
@@ -612,6 +634,7 @@ function triggerCampaignVictoryFinale() {
   updateHUD();
 
   const isHeavenApex = state.floorLevel > 0;
+  audio.playCelebrationTheme();
   audio.playCourseClearFanfare(isHeavenApex);
   const centerPos = todeRoot.position.clone().add(new THREE.Vector3(0, 1.5, 0));
   spawnPollenBurst(centerPos, 42);
@@ -677,6 +700,7 @@ function startHoopLevelTransition(targetLevel, hoopX, hoopZ, isSky) {
   recordScoreToLeaderboard();
   updateHUD();
 
+  audio.playCelebrationTheme();
   audio.playCourseClearFanfare(isSky);
   spawnPollenBurst(state.hoopCenterPos, 28);
   spawnFloatingPopup(
@@ -743,27 +767,103 @@ function transitionToFloor(targetLevel, resetRun = false) {
   updateHUD();
   renderLiveMinimap();
 
+  audio.restartCalmTheme();
   audio.playPortalChord(state.floorLevel >= 0);
 }
 
-function startPlayFromLanding(initialFloor = 0) {
+function renderStoryIntroStepUI() {
+  const ch = STORY_INTRO_CHAPTERS[state.storyIntroStep] || STORY_INTRO_CHAPTERS[0];
+  const stepEl = document.getElementById('story-intro-step');
+  const badgeEl = document.getElementById('story-intro-badge');
+  const titleEl = document.getElementById('story-intro-title');
+  const textEl = document.getElementById('story-intro-text');
+  const hintEl = document.getElementById('story-intro-hint');
+  const nextBtnText = document.getElementById('story-intro-next-label');
+  const dotsEl = document.getElementById('story-intro-dots');
+
+  if (stepEl) stepEl.textContent = ch.step;
+  if (badgeEl) badgeEl.textContent = ch.badge;
+  if (titleEl) titleEl.textContent = ch.title;
+  if (textEl) textEl.textContent = ch.text;
+  if (hintEl) hintEl.textContent = ch.hint;
+  if (nextBtnText) {
+    nextBtnText.textContent = state.storyIntroStep >= STORY_INTRO_CHAPTERS.length - 1
+      ? 'Start Hopping!'
+      : 'Next';
+  }
+  if (dotsEl) {
+    dotsEl.innerHTML = STORY_INTRO_CHAPTERS.map((_, i) => `
+      <span class="h-1.5 rounded-full transition-all duration-300 ${i === state.storyIntroStep ? 'w-6 bg-emerald-400' : 'w-1.5 bg-white/25'}"></span>
+    `).join('');
+  }
+}
+
+function advanceStoryIntroStep() {
+  if (state.mode !== 'STORY_INTRO') return;
+  audio.playUiClick();
+  if (state.storyIntroStep < STORY_INTRO_CHAPTERS.length - 1) {
+    state.storyIntroStep += 1;
+    state.storyIntroStepTimer = 0;
+    renderStoryIntroStepUI();
+  } else {
+    finishStoryIntroAndPlay();
+  }
+}
+
+function finishStoryIntroAndPlay() {
+  if (state.mode !== 'STORY_INTRO') return;
+  state.storyIntroSeen = true;
+  const overlay = document.getElementById('story-intro-overlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+  }
+  document.getElementById('gameplay-hud').classList.remove('hidden');
+  document.body.classList.add('is-playing-touch');
+  state.targetYaw = Math.PI;
+  state.mode = 'TRANSITION_TO_PLAY';
+  state.previousModeBeforePause = 'PLAYING';
+  state.transitionProgress = 0;
+  updateHUD();
+  renderLiveMinimap();
+}
+
+function startPlayFromLanding(initialFloor = 0, forceStoryIntro = true) {
   ensurePlayerName();
   audio.init();
+  audio.restartCalmTheme();
   state.floorLevel = initialFloor;
   state.hearts = state.lethalOneHitMode ? 1 : 3;
   buildRoadwayWorld();
   populateRoadwayBees();
 
-  state.targetYaw = Math.PI;
-  state.mode = 'TRANSITION_TO_PLAY';
-  state.previousModeBeforePause = 'PLAYING';
-  state.transitionProgress = 0;
-
   document.getElementById('landing-screen').classList.add('opacity-0', 'pointer-events-none');
   setTimeout(() => {
     document.getElementById('landing-screen').classList.add('hidden');
-    document.getElementById('gameplay-hud').classList.remove('hidden');
-    updateHUD();
-    renderLiveMinimap();
-  }, 500);
+    if (forceStoryIntro && initialFloor === 0 && !state.storyIntroSeen) {
+      state.mode = 'STORY_INTRO';
+      state.previousModeBeforePause = 'STORY_INTRO';
+      state.storyIntroStep = 0;
+      state.storyIntroStepTimer = 0;
+      todeRoot.position.set(0, 0, 0);
+      todeRoot.rotation.set(0, Math.PI, 0);
+      state.targetYaw = Math.PI;
+      state.currentYaw = Math.PI;
+      renderStoryIntroStepUI();
+      const overlay = document.getElementById('story-intro-overlay');
+      if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      }
+    } else {
+      state.targetYaw = Math.PI;
+      state.mode = 'TRANSITION_TO_PLAY';
+      state.previousModeBeforePause = 'PLAYING';
+      state.transitionProgress = 0;
+      document.getElementById('gameplay-hud').classList.remove('hidden');
+      document.body.classList.add('is-playing-touch');
+      updateHUD();
+      renderLiveMinimap();
+    }
+  }, 420);
 }

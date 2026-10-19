@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Main 60 FPS Animation Loop, Cannon Recoil/Muzzle-Flash/Ember Trail, Forward Grapple Lock & Camera Rig
+ * Froggit — Sky and Abyss — Main 60 FPS Animation Loop, Cannon Recoil/Muzzle-Flash/Ember Trail, Forward Grapple Lock & Camera Rig
  * File: src/main.js
  */
 // =========================================================================
@@ -45,6 +45,14 @@ function animate(now) {
     todeRoot.position.z = THREE.MathUtils.lerp(todeRoot.position.z, targetLandingZ, rawDt * 5);
     state.targetYaw = (isPortraitLanding ? -0.12 : -0.38) + Math.sin(now * 0.0011) * 0.09;
     upperHeadPivot.rotation.z = Math.sin(now * 0.0016) * 0.035;
+  } else if (state.mode === 'STORY_INTRO') {
+    state.storyIntroStepTimer += rawDt;
+    // Gentle idle animation on Tode at the starting pad during story intro
+    todeRoot.position.x = THREE.MathUtils.lerp(todeRoot.position.x, 0, rawDt * 5);
+    todeRoot.position.z = THREE.MathUtils.lerp(todeRoot.position.z, 0, rawDt * 5);
+    todeRoot.position.y = Math.abs(Math.sin(now * 0.0032)) * 0.18;
+    state.targetYaw = Math.PI + Math.sin(now * 0.0015) * 0.22;
+    upperHeadPivot.rotation.z = Math.sin(now * 0.002) * 0.04;
   } else if (state.mode === 'TRANSITION_TO_PLAY') {
     upperHeadPivot.rotation.z = 0;
     todeRoot.position.x = THREE.MathUtils.lerp(todeRoot.position.x, 0, rawDt * 6);
@@ -882,7 +890,7 @@ function animate(now) {
   });
 
   // Sync custom BGM slot hook based on current mode, floor biome, boss proximity (Row >= 82), or victory dance
-  audio.syncStageBgm(state.floorLevel, state.mode, state.gridZ >= ROADWAY_LENGTH - 14, state.victoryCelebrationActive);
+  audio.syncStageBgm(state.floorLevel, state.mode, state.gridZ >= ROADWAY_LENGTH - 14, state.victoryCelebrationActive, Boolean(state.defeated || state.fallingDeath));
 
   // Update Live Orthographic Top-Down Minimap every frame during gameplay
   if (state.mode === 'PLAYING' || state.mode === 'TRANSITION_TO_PLAY') {
@@ -947,6 +955,35 @@ function animate(now) {
     camera.updateProjectionMatrix();
     camera.position.lerp(faceCamPos, rawDt * 5);
     camera.lookAt(faceLookAt);
+  } else if (state.mode === 'STORY_INTRO') {
+    state.storyIntroStepTimer += rawDt;
+    // Gentle idle animation on Tode at the starting pad during story intro
+    todeRoot.position.x = THREE.MathUtils.lerp(todeRoot.position.x, 0, rawDt * 5);
+    todeRoot.position.z = THREE.MathUtils.lerp(todeRoot.position.z, 0, rawDt * 5);
+    todeRoot.position.y = Math.abs(Math.sin(now * 0.0032)) * 0.18;
+    state.targetYaw = Math.PI + Math.sin(now * 0.0015) * 0.22;
+    upperHeadPivot.rotation.z = Math.sin(now * 0.002) * 0.04;
+  } else if (state.mode === 'STORY_INTRO') {
+    const ch = STORY_INTRO_CHAPTERS[state.storyIntroStep] || STORY_INTRO_CHAPTERS[0];
+    const targetFov = (isPortrait ? ch.fov + 8 : ch.fov);
+    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, rawDt * 3.5);
+    camera.updateProjectionMatrix();
+
+    const driftX = Math.sin(now * 0.0007) * 1.15;
+    const driftY = Math.cos(now * 0.0009) * 0.35;
+    const desiredCam = new THREE.Vector3(
+      ch.camPos.x + driftX,
+      ch.camPos.y + portraitZoomBack * 0.65 + driftY,
+      ch.camPos.z + portraitZoomBack * 0.85
+    );
+    const desiredLook = new THREE.Vector3(ch.lookAt.x, ch.lookAt.y, ch.lookAt.z);
+
+    if (!window._storyLookVec) {
+      window._storyLookVec = desiredLook.clone();
+    }
+    camera.position.lerp(desiredCam, Math.min(1, rawDt * 2.8));
+    window._storyLookVec.lerp(desiredLook, Math.min(1, rawDt * 3.2));
+    camera.lookAt(window._storyLookVec);
   } else if (state.mode === 'TRANSITION_TO_PLAY') {
     const t = state.transitionProgress;
     const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -1090,6 +1127,7 @@ window.onload = () => {
   renderLeaderboardUI();
   renderSkinSelectorUI();
   syncSettingsModalUI();
+  syncCornerMusicButtonUI();
   state.floorLevel = 0;
   todeRoot.position.set(0.65, 0, 0.35);
   state.targetYaw = -0.38;
@@ -1097,5 +1135,6 @@ window.onload = () => {
   todeRoot.rotation.y = -0.38;
   buildRoadwayWorld();
   populateRoadwayBees();
+  audio.playCalmTheme(true);
   requestAnimationFrame(animate);
 };

@@ -1,55 +1,65 @@
 /**
- * THE FROGGIT — 25-Slot Custom Audio Hook Registry & Web Audio Synthesizer
+ * Froggit — Sky and Abyss — Background Music (Calm Theme & Celebration Song) & Web Audio Synthesizer
  * File: src/audio/ProceduralAudio.js
+ *
+ * BGM Lifecycle Rules:
+ *  1. Normal Play / Title / Story Intro -> Plays the Calm Theme Song (`bgm_calm_theme`).
+ *  2. When Tode Dies -> Immediately STOPS the Calm Theme Song (`stopBgm()`).
+ *  3. When Tode Revives / Retries / Starts New Run -> RESTARTS the Calm Theme Song from 0:00 (`restartCalmTheme()`).
+ *  4. When Player Wins -> Plays the Celebration Song (`playCelebrationTheme()`).
+ *
+ * Drop your non-copyrighted audio files at:
+ *  - ./assets/audio/calm-theme.mp3
+ *  - ./assets/audio/celebration.mp3
+ * Or register custom URLs/Data-URIs via `window.registerFroggitAudio('bgm_calm_theme', url)`.
+ * If the external MP3 files are not found, a built-in Web Audio API polyphonic BGM sequencer
+ * automatically plays a calm ambient melody and a joyful celebration fanfare!
  */
-// =========================================================================
-// 1. PROCEDURAL WEB AUDIO SYNTHESIZER WITH REAL VOLUME & MUTE CONTROLS
-// =========================================================================
-// =========================================================================
-// 1A. CUSTOM MUSIC & SFX HOOK REGISTRY ("AUDIO LOOPHOLES")
-//     Drop any external .mp3 / .ogg / .wav URL or base64 data URI into
-//     AUDIO_CUSTOM_SLOTS below (or call window.registerFroggitAudio(slot, url)).
-//     Whenever a slot is non-null, ProceduralAudio plays your custom track/SFX;
-//     when null, it seamlessly falls back to the built-in Web Audio synth!
-// =========================================================================
 const AUDIO_CUSTOM_SLOTS = {
-  // --- Background Music (BGM) Loop Slots ---
-  bgm_landing_title: null,   // Hook 1: Title Screen & Hero Diorama ambient loop
-  bgm_ground_0F: null,       // Hook 2: 0F Ground Meadow main stage music loop
-  bgm_heaven_spire: null,    // Hook 3: +1F / +2F / +3F Sky & Heaven Spire music loop
-  bgm_ocean_abyss: null,     // Hook 4: -1F / -2F / -3F Coral Reef & Mariana Abyss music loop
-  bgm_boss_guardian: null,   // Hook 5: Row 82..94 Floor Guardian Boss proximity theme
-  bgm_victory_dance: null,   // Hook 6: +3F / -3F Apex Victory Celebration dance loop
+  // Primary User BGM Slots (Calm Theme & Celebration Song)
+  bgm_calm_theme: './assets/audio/calm-theme.mp3',
+  bgm_celebration: './assets/audio/celebration.mp3',
 
-  // --- Gameplay Action & Event SFX Slots ---
-  sfx_hop: null,             // Hook 7: Tode directional tile hop (attemptHop)
-  sfx_bounce_pad: null,      // Hook 8: Spring Bounce Pad 2-row launch boost
-  sfx_tongue_whip: null,     // Hook 9: Electric indigo tongue grapple fire (fireTongueGrapple)
-  sfx_sticky_latch: null,    // Hook 10: Tongue tip latches onto bug mid-air
-  sfx_swallow_combo: null,   // Hook 11: Bug devoured + combo multiplier chime (onSwallowBee)
-  sfx_boss_shield_break: null, // Hook 12: Guardian Boss crystal shield shattered
-  sfx_obstacle_knockback: null, // Hook 13: Sweeper / Push-Block / Cannon / Axe / Thwomp / Log shove
-  sfx_cannon_fire: null,     // Hook 14: Side Bastion Cannon muzzle blast
-  sfx_thwomp_slam: null,     // Hook 15: Vertical Thwomp Monolith ground impact
-  sfx_checkpoint_save: null, // Hook 16: First-time Checkpoint Overlook reached (Rows 28, 56, 78)
-  sfx_hoop_warp_fanfare: null, // Hook 17: Jumping into Row 94 Portal Hoop iris transition
-  sfx_fall_whistle: null,    // Hook 18: Falling into chasm / off unfenced ledge
-  sfx_defeat_wipeout: null,  // Hook 19: Lethal enemy hit / wipeout slide
+  // Legacy / Stage-Specific Optional Overrides (Fallback to bgm_calm_theme / bgm_celebration)
+  bgm_landing_title: null,
+  bgm_ground_0F: null,
+  bgm_heaven_spire: null,
+  bgm_ocean_abyss: null,
+  bgm_boss_guardian: null,
+  bgm_victory_dance: null,
 
-  // --- Bonus Ambient, Hazard & UI Sound Slots ---
-  amb_waterfall_river: null,   // Hook 20: Ground Meadow rushing waterfall & birdsong ambient loop
-  amb_underwater_bubbles: null,// Hook 21: Ocean Abyss deep coral bubble vent ambient loop
-  sfx_axe_whoosh: null,        // Hook 22: Swinging pendulum battle-axe air slice whoosh
-  sfx_log_rumble: null,        // Hook 23: Rolling spiked timber log clatter
-  sfx_ui_click: null,          // Hook 24: Tactile UI button & D-pad click
-  sfx_frog_ribbit_idle: null   // Hook 25: Cute mascot frog ribbit / croak
+  // Gameplay Action & Event SFX Slots
+  sfx_hop: null,
+  sfx_bounce_pad: null,
+  sfx_tongue_whip: null,
+  sfx_sticky_latch: null,
+  sfx_swallow_combo: null,
+  sfx_boss_shield_break: null,
+  sfx_obstacle_knockback: null,
+  sfx_cannon_fire: null,
+  sfx_thwomp_slam: null,
+  sfx_checkpoint_save: null,
+  sfx_hoop_warp_fanfare: null,
+  sfx_fall_whistle: null,
+  sfx_defeat_wipeout: null,
+
+  // Ambient, Hazard & UI Sound Slots
+  amb_waterfall_river: null,
+  amb_underwater_bubbles: null,
+  sfx_axe_whoosh: null,
+  sfx_log_rumble: null,
+  sfx_ui_click: null,
+  sfx_frog_ribbit_idle: null
 };
 
 window.AUDIO_CUSTOM_SLOTS = AUDIO_CUSTOM_SLOTS;
 window.registerFroggitAudio = function(slotName, audioUrl) {
   if (slotName in AUDIO_CUSTOM_SLOTS) {
     AUDIO_CUSTOM_SLOTS[slotName] = audioUrl;
-    if (window.froggitAudio) window.froggitAudio.preloadSlot(slotName, audioUrl);
+    if (window.froggitAudio) {
+      window.froggitAudio.failedSlots.delete(slotName);
+      window.froggitAudio.preloadSlot(slotName, audioUrl);
+    }
   }
 };
 
@@ -61,21 +71,32 @@ class ProceduralAudio {
     this.sfxVolume = 1.00;
     this.bgmVolume = 0.65;
     this.customAudioCache = new Map();
+    this.failedSlots = new Set();
     this.activeBgmAudio = null;
     this.activeBgmSlot = null;
+    this.bgmState = 'stopped'; // 'calm' | 'celebration' | 'stopped'
+
+    // Built-in Web Audio polyphonic BGM sequencer state (used when external MP3 isn't loaded yet)
+    this.synthBgmTimer = null;
+    this.synthStepIndex = 0;
+    this.usingSynthBgmFallback = false;
   }
 
   preloadSlot(slotName, url) {
     if (!url) return;
-    const el = new Audio(url);
+    const el = new Audio();
     el.preload = 'auto';
+    el.addEventListener('error', () => {
+      this.failedSlots.add(slotName);
+    });
+    el.src = url;
     this.customAudioCache.set(slotName, el);
   }
 
   playCustomSfx(slotName, volumeScale = 1.0) {
     if (this.muted) return false;
     const url = AUDIO_CUSTOM_SLOTS[slotName];
-    if (!url) return false;
+    if (!url || this.failedSlots.has(slotName)) return false;
     try {
       let baseEl = this.customAudioCache.get(slotName);
       if (!baseEl) {
@@ -91,37 +112,198 @@ class ProceduralAudio {
     }
   }
 
-  switchBgmSlot(slotName) {
-    if (this.activeBgmSlot === slotName) return;
-    this.activeBgmSlot = slotName;
+  // -------------------------------------------------------------------------
+  // CORE BGM LIFECYCLE: CALM THEME, STOP ON DEATH, RESTART, CELEBRATION ON WIN
+  // -------------------------------------------------------------------------
+  stopSynthBgmLoop() {
+    if (this.synthBgmTimer) {
+      clearInterval(this.synthBgmTimer);
+      this.synthBgmTimer = null;
+    }
+    this.usingSynthBgmFallback = false;
+  }
+
+  startSynthBgmLoop(mode = 'calm') {
+    this.stopSynthBgmLoop();
+    this.usingSynthBgmFallback = true;
+    this.synthStepIndex = 0;
+
+    // Calm acoustic marimba/harp-like pentatonic progression vs. joyful celebration fanfare loop
+    const calmSequence = [
+      { note: 261.63, bass: 130.81, dur: 0.42 }, // C4
+      { note: 329.63, bass: 0,      dur: 0.38 }, // E4
+      { note: 392.00, bass: 196.00, dur: 0.42 }, // G4
+      { note: 440.00, bass: 0,      dur: 0.38 }, // A4
+      { note: 392.00, bass: 146.83, dur: 0.42 }, // G4
+      { note: 329.63, bass: 0,      dur: 0.38 }, // E4
+      { note: 293.66, bass: 146.83, dur: 0.46 }, // D4
+      { note: 261.63, bass: 0,      dur: 0.40 }, // C4
+      { note: 329.63, bass: 164.81, dur: 0.42 }, // E4
+      { note: 392.00, bass: 0,      dur: 0.38 }, // G4
+      { note: 523.25, bass: 174.61, dur: 0.46 }, // C5
+      { note: 440.00, bass: 0,      dur: 0.38 }, // A4
+      { note: 392.00, bass: 196.00, dur: 0.42 }, // G4
+      { note: 329.63, bass: 0,      dur: 0.38 }, // E4
+      { note: 293.66, bass: 130.81, dur: 0.52 }, // D4
+      { note: 0,      bass: 130.81, dur: 0.35 }  // Gentle breath
+    ];
+
+    const celebrationSequence = [
+      { note: 523.25, bass: 261.63, dur: 0.22 }, // C5
+      { note: 659.25, bass: 0,      dur: 0.22 }, // E5
+      { note: 783.99, bass: 392.00, dur: 0.22 }, // G5
+      { note: 1046.50,bass: 261.63, dur: 0.36 }, // C6
+      { note: 783.99, bass: 0,      dur: 0.20 }, // G5
+      { note: 1046.50,bass: 349.23, dur: 0.38 }, // C6
+      { note: 880.00, bass: 220.00, dur: 0.24 }, // A5
+      { note: 987.77, bass: 246.94, dur: 0.24 }, // B5
+      { note: 1046.50,bass: 261.63, dur: 0.44 }, // C6
+      { note: 783.99, bass: 196.00, dur: 0.24 }, // G5
+      { note: 659.25, bass: 261.63, dur: 0.24 }, // E5
+      { note: 523.25, bass: 130.81, dur: 0.38 }  // C5
+    ];
+
+    const seq = mode === 'celebration' ? celebrationSequence : calmSequence;
+    const stepMs = mode === 'celebration' ? 240 : 460;
+
+    const playStep = () => {
+      if (this.muted || this.bgmState !== mode) return;
+      this.init();
+      if (!this.ctx || this.ctx.state !== 'running') return;
+
+      const item = seq[this.synthStepIndex % seq.length];
+      this.synthStepIndex = (this.synthStepIndex + 1) % seq.length;
+      const now = this.ctx.currentTime;
+      const vol = Math.max(0.0001, (mode === 'celebration' ? 0.11 : 0.075) * this.masterVolume * this.bgmVolume);
+
+      if (item.note > 0) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = mode === 'celebration' ? 'triangle' : 'sine';
+        osc.frequency.setValueAtTime(item.note, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + item.dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + item.dur + 0.02);
+      }
+
+      if (item.bass > 0) {
+        const bOsc = this.ctx.createOscillator();
+        const bGain = this.ctx.createGain();
+        bOsc.type = 'triangle';
+        bOsc.frequency.setValueAtTime(item.bass, now);
+        bGain.gain.setValueAtTime(0.0001, now);
+        bGain.gain.linearRampToValueAtTime(vol * 0.65, now + 0.03);
+        bGain.gain.exponentialRampToValueAtTime(0.0001, now + item.dur * 1.15);
+        bOsc.connect(bGain);
+        bGain.connect(this.ctx.destination);
+        bOsc.start(now);
+        bOsc.stop(now + item.dur * 1.2);
+      }
+    };
+
+    playStep();
+    this.synthBgmTimer = setInterval(playStep, stepMs);
+  }
+
+  stopBgm() {
+    this.bgmState = 'stopped';
+    this.activeBgmSlot = null;
+    this.stopSynthBgmLoop();
     if (this.activeBgmAudio) {
-      this.activeBgmAudio.pause();
+      try {
+        this.activeBgmAudio.pause();
+        this.activeBgmAudio.currentTime = 0;
+      } catch (e) {}
       this.activeBgmAudio = null;
     }
+  }
+
+  playTrackSlot(slotName, modeLabel, forceRestart = false) {
+    if (this.bgmState === modeLabel && this.activeBgmSlot === slotName && !forceRestart) {
+      return;
+    }
+
+    if (this.activeBgmAudio && (this.activeBgmSlot !== slotName || forceRestart)) {
+      try {
+        this.activeBgmAudio.pause();
+        this.activeBgmAudio.currentTime = 0;
+      } catch (e) {}
+      this.activeBgmAudio = null;
+    }
+    this.stopSynthBgmLoop();
+
+    this.bgmState = modeLabel;
+    this.activeBgmSlot = slotName;
+
     const url = AUDIO_CUSTOM_SLOTS[slotName];
-    if (!url || this.muted) return;
+    if (!url || this.failedSlots.has(slotName)) {
+      this.startSynthBgmLoop(modeLabel);
+      return;
+    }
+
     try {
       const bgm = new Audio(url);
       bgm.loop = true;
+      bgm.muted = this.muted;
       bgm.volume = Math.max(0, Math.min(1, this.masterVolume * this.bgmVolume));
-      bgm.play().catch(() => {});
+      bgm.addEventListener('error', () => {
+        this.failedSlots.add(slotName);
+        if (this.bgmState === modeLabel) {
+          this.startSynthBgmLoop(modeLabel);
+        }
+      });
+      const playPromise = bgm.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          // If file is missing or blocked, fall back cleanly to Web Audio BGM synth
+          if (bgm.error) {
+            this.failedSlots.add(slotName);
+          }
+          if (this.bgmState === modeLabel && !this.activeBgmAudio) {
+            this.startSynthBgmLoop(modeLabel);
+          }
+        });
+      }
       this.activeBgmAudio = bgm;
-    } catch (e) {}
+    } catch (e) {
+      this.startSynthBgmLoop(modeLabel);
+    }
   }
 
-  syncStageBgm(floorLevel = 0, mode = "PLAYING", isBossNear = false, isVictory = false) {
-    if (mode === "LANDING") {
-      this.switchBgmSlot("bgm_landing_title");
-    } else if (isVictory) {
-      this.switchBgmSlot("bgm_victory_dance");
-    } else if (isBossNear && AUDIO_CUSTOM_SLOTS.bgm_boss_guardian) {
-      this.switchBgmSlot("bgm_boss_guardian");
-    } else if (floorLevel > 0) {
-      this.switchBgmSlot("bgm_heaven_spire");
-    } else if (floorLevel < 0) {
-      this.switchBgmSlot("bgm_ocean_abyss");
-    } else {
-      this.switchBgmSlot("bgm_ground_0F");
+  playCalmTheme(forceRestart = false) {
+    const slot = AUDIO_CUSTOM_SLOTS.bgm_ground_0F ? 'bgm_ground_0F' : 'bgm_calm_theme';
+    this.playTrackSlot(slot, 'calm', forceRestart);
+  }
+
+  restartCalmTheme() {
+    this.stopBgm();
+    this.playCalmTheme(true);
+  }
+
+  playCelebrationTheme() {
+    const slot = AUDIO_CUSTOM_SLOTS.bgm_victory_dance ? 'bgm_victory_dance' : 'bgm_celebration';
+    this.playTrackSlot(slot, 'celebration', true);
+  }
+
+  syncStageBgm(floorLevel = 0, mode = 'PLAYING', isBossNear = false, isVictory = false, isDead = false) {
+    if (isDead) {
+      if (this.bgmState !== 'stopped') {
+        this.stopBgm();
+      }
+      return;
+    }
+    if (isVictory) {
+      if (this.bgmState !== 'celebration') {
+        this.playCelebrationTheme();
+      }
+      return;
+    }
+    if (this.bgmState !== 'calm') {
+      this.playCalmTheme(false);
     }
   }
 
@@ -133,6 +315,9 @@ class ProceduralAudio {
     if (this.ctx && this.ctx.state === 'suspended') {
       this.ctx.resume();
     }
+    if (this.activeBgmAudio && this.activeBgmAudio.paused && !this.muted && this.bgmState !== 'stopped') {
+      this.activeBgmAudio.play().catch(() => {});
+    }
   }
 
   getEffectiveGain(baseGain) {
@@ -142,8 +327,12 @@ class ProceduralAudio {
 
   toggleMute() {
     this.muted = !this.muted;
+    this.init();
     if (this.activeBgmAudio) {
       this.activeBgmAudio.muted = this.muted;
+      if (!this.muted && this.activeBgmAudio.paused && this.bgmState !== 'stopped') {
+        this.activeBgmAudio.play().catch(() => {});
+      }
     }
     return this.muted;
   }
