@@ -109,64 +109,100 @@
     </svg>
   </button>
 
-  <!-- 3D World Storytelling Intro Overlay (Familiarizes Player With the World & Goal) -->
+  <!-- Automated 4-Chapter 3D World Story Cutscene & Narrator Subtitles Overlay -->
   <section
     id="story-intro-overlay"
-    class="fixed inset-0 z-40 hidden flex-col justify-between p-4 sm:p-8 safe-top-pad safe-bottom-pad pointer-events-none"
-    aria-label="3D World Story Introduction"
+    class="fixed inset-0 z-40 hidden flex-col justify-between pointer-events-none select-none"
+    aria-label="Automated 3D World Story Cutscene"
   >
-    <!-- Top Bar: Title Badge + Skip Intro Button -->
-    <div class="max-w-5xl w-full mx-auto flex items-center justify-between gap-3 pointer-events-auto">
-      <div class="ui-panel px-3.5 py-2 flex items-center gap-2.5 bg-slate-950/80 border-white/15">
-        <span class="text-base leading-none">🐸</span>
-        <span class="font-display font-bold text-xs sm:text-sm tracking-wide text-emerald-300">
-          Froggit — Sky and Abyss
-        </span>
-        <span class="text-white/25">•</span>
-        <span id="story-intro-step" class="font-mono-num text-xs font-bold text-amber-300">1 / 4</span>
-      </div>
-
-      <button
-        id="btn-story-intro-skip"
-        type="button"
-        class="ui-btn-secondary px-4 py-2 rounded-xl font-mono-num text-xs font-bold text-slate-200 hover:text-white flex items-center gap-1.5 shadow-lg"
-      >
-        <span>Skip Intro</span>
-        <span class="text-[10px] text-slate-400">[ESC]</span>
-      </button>
-    </div>
-
-    <!-- Bottom Storytelling Card (Centered, Leaving 3D Camera Pan Unobstructed) -->
-    <div class="max-w-xl w-full mx-auto mb-2 sm:mb-4 pointer-events-auto">
-      <div class="story-intro-card p-5 sm:p-6 text-white">
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <span id="story-intro-badge" class="px-2.5 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/40 font-mono-num text-[10px] font-extrabold uppercase tracking-widest text-emerald-300">
-            🌿 THE FLOATING REALMS
-          </span>
-          <div id="story-intro-dots" class="flex items-center gap-1.5"></div>
-        </div>
-
-        <h2 id="story-intro-title" class="font-display text-xl sm:text-2xl font-black tracking-tight text-white mb-2">
-          Welcome to Sky &amp; Abyss
-        </h2>
-
-        <p id="story-intro-text" class="text-xs sm:text-sm text-slate-200 leading-relaxed mb-3.5">
-          This is Tode. Ahead lies a 96-row floating causeway of rolling hills, split-island forks, and moving ferries suspended between the clouds and the deep sea.
-        </p>
-
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
-          <div id="story-intro-hint" class="font-mono-num text-[11px] font-semibold text-amber-200">
-            Use WASD, Arrow Keys, or Swipe to hop tile by tile.
+    <!-- Top Widescreen Cinema Letterbox Bar: Chapter Badge, Live Camera POV Pill & Skip Cutscene Button -->
+    <div class="story-letterbox-top w-full px-4 pt-3 pb-6 sm:px-8 sm:pt-5 sm:pb-8 safe-top-pad pointer-events-auto">
+      <div class="max-w-6xl w-full mx-auto flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="ui-panel px-3 py-1.5 flex items-center gap-2 bg-slate-950/85 border-emerald-400/35">
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+            <span id="story-intro-step" class="font-mono-num text-[11px] sm:text-xs font-extrabold tracking-wider text-emerald-300">
+              CHAPTER I • 1 / 4
+            </span>
           </div>
 
-          <button
-            id="btn-story-intro-next"
-            type="button"
-            class="ui-btn-primary px-5 py-2.5 rounded-xl font-display font-extrabold text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 shrink-0"
-          >
-            <span id="story-intro-next-label">Next</span>
-            <span>→</span>
-          </button>
+          <div class="ui-panel px-3 py-1.5 flex items-center gap-2 bg-slate-950/80 border-cyan-400/35">
+            <span id="story-intro-pov" class="font-mono-num text-[10px] sm:text-xs font-bold tracking-wider text-cyan-200">
+              🎥 LOW-ANGLE HERO CLOSE-UP
+            </span>
+          </div>
+
+          <div class="hidden sm:flex ui-panel px-3 py-1.5 items-center gap-1.5 bg-slate-950/80 border-amber-400/30">
+            <span id="story-intro-realm-pill" class="font-mono-num text-[10px] font-bold text-amber-300">
+              🌿 Ground Meadow (0F)
+            </span>
+          </div>
+        </div>
+
+        <button
+          id="btn-story-intro-skip"
+          type="button"
+          class="ui-btn-secondary px-3.5 py-1.5 min-h-[38px] rounded-xl font-mono-num text-xs font-bold text-slate-200 hover:text-white flex items-center gap-2 shadow-lg border-white/20 bg-slate-950/80"
+          title="Skip Automated Story Cutscene [ESC]"
+        >
+          <span>Skip Cutscene</span>
+          <span class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] text-amber-300">[ESC]</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Widescreen Cinema Letterbox & Narrator Subtitles Area (Zero Click Required — Auto-Advances!) -->
+    <div class="story-letterbox-bottom w-full px-4 pt-8 pb-4 sm:px-8 sm:pt-12 sm:pb-6 safe-bottom-pad pointer-events-auto">
+      <div class="max-w-3xl w-full mx-auto pl-12 sm:pl-0">
+        <div class="story-intro-card px-5 py-4 sm:px-7 sm:py-5 text-white relative overflow-hidden">
+          <!-- Top Meta Row: Narrator Waveform + Chapter Badge + 4-Chapter Timeline Dots -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2.5">
+              <div class="flex items-end gap-0.5 h-4 px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-400/35" aria-hidden="true">
+                <span class="narrator-wave-bar"></span>
+                <span class="narrator-wave-bar"></span>
+                <span class="narrator-wave-bar"></span>
+                <span class="narrator-wave-bar"></span>
+              </div>
+              <span class="font-mono-num text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-300">
+                NARRATOR
+              </span>
+              <span class="text-white/25">•</span>
+              <span id="story-intro-badge" class="font-mono-num text-[10px] font-bold uppercase tracking-widest text-amber-300">
+                🌿 CHAPTER I — THE AWAKENING
+              </span>
+            </div>
+
+            <div id="story-intro-dots" class="flex items-center gap-1.5"></div>
+          </div>
+
+          <!-- Scene Title -->
+          <h2 id="story-intro-title" class="font-display text-base sm:text-xl font-black tracking-tight text-white mb-1 drop-shadow">
+            Meet Tode of the Floating Realms
+          </h2>
+
+          <!-- Voiceover Narrator Subtitle Area -->
+          <p id="story-intro-text" class="story-subtitle-quote font-sans text-sm sm:text-lg font-semibold italic text-amber-50/95 leading-snug mb-3">
+            "High above the clouds and deep beneath the waves, a tiny voxel frog named Tode awakens on the edge of the Ground Meadow..."
+          </p>
+
+          <!-- Bottom Telemetry Hint + Automated Progress Bar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 text-[10.5px] font-mono-num text-slate-300/90 mb-2">
+            <span id="story-intro-hint" class="text-cyan-200 font-semibold">
+              Automated 3D Story Cutscene • Press [ESC] Anytime to Skip
+            </span>
+            <span id="story-intro-timer-readout" class="text-amber-300 font-bold">
+              AUTO-PLAYING
+            </span>
+          </div>
+
+          <!-- Smooth Automated Cutscene Timeline Progress Bar -->
+          <div class="w-full h-1.5 rounded-full bg-slate-900/90 border border-white/10 overflow-hidden">
+            <div
+              id="story-intro-progress-fill"
+              class="h-full w-0 bg-gradient-to-r from-emerald-400 via-cyan-300 to-amber-300 transition-none"
+            ></div>
+          </div>
         </div>
       </div>
     </div>

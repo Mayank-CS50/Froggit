@@ -47,12 +47,152 @@ function animate(now) {
     upperHeadPivot.rotation.z = Math.sin(now * 0.0016) * 0.035;
   } else if (state.mode === 'STORY_INTRO') {
     state.storyIntroStepTimer += rawDt;
-    // Gentle idle animation on Tode at the starting pad during story intro
-    todeRoot.position.x = THREE.MathUtils.lerp(todeRoot.position.x, 0, rawDt * 5);
-    todeRoot.position.z = THREE.MathUtils.lerp(todeRoot.position.z, 0, rawDt * 5);
-    todeRoot.position.y = Math.abs(Math.sin(now * 0.0032)) * 0.18;
-    state.targetYaw = Math.PI + Math.sin(now * 0.0015) * 0.22;
-    upperHeadPivot.rotation.z = Math.sin(now * 0.002) * 0.04;
+    state.storyIntroTotalTimer += rawDt;
+    const ch = STORY_INTRO_CHAPTERS[state.storyIntroStep] || STORY_INTRO_CHAPTERS[0];
+    const beatDur = ch.duration || 4.2;
+    const beatProgress = Math.min(1.0, state.storyIntroStepTimer / beatDur);
+
+    // Update automated timeline progress bar & chapter countdown readout
+    const progFill = document.getElementById('story-intro-progress-fill');
+    if (progFill) {
+      let elapsedBefore = 0;
+      for (let i = 0; i < state.storyIntroStep; i++) {
+        elapsedBefore += (STORY_INTRO_CHAPTERS[i].duration || 4.2);
+      }
+      const totalDur = state.storyIntroTotalDuration || 51.0;
+      const pct = Math.min(100, ((elapsedBefore + state.storyIntroStepTimer) / totalDur) * 100);
+      progFill.style.width = `${pct.toFixed(1)}%`;
+    }
+    const timerReadout = document.getElementById('story-intro-timer-readout');
+    if (timerReadout) {
+      const rem = Math.max(0, Math.ceil((state.storyIntroTotalDuration || 51.0) - state.storyIntroTotalTimer));
+      timerReadout.textContent = `AUTO-NARRATING • ${rem}s`;
+    }
+
+    // Execute automated Tode choreography per beat!
+    const triggerDemoHop = (dx, dz, isZip = false) => {
+      if (state.hopActive) return;
+      const nx = state.gridX + dx;
+      const nz = state.gridZ + dz;
+      state.gridX = nx;
+      state.gridZ = nz;
+      state.targetYaw = Math.atan2(dx, -dz);
+      state.hopActive = true;
+      state.hopTime = 0;
+      state.hopStartPos.copy(todeRoot.position);
+      state.hopEndPos.set(nx * TILE_SIZE, getSurfaceY(nx, nz), -nz * TILE_SIZE);
+      audio.playHop(state.scaleMultiplier, isZip);
+    };
+
+    if (ch.todeAction === 'hero_awaken') {
+      todeRoot.position.y = Math.abs(Math.sin(now * 0.0042)) * 0.24;
+      state.targetYaw = Math.sin(now * 0.0022) * 0.55;
+      upperHeadPivot.rotation.z = Math.sin(now * 0.003) * 0.06;
+    } else if (ch.todeAction === 'wardrobe_expressions') {
+      const skinKeys = ['emerald', 'cobalt', 'shogun', 'abyss', 'sakura'];
+      const sIdx = Math.min(skinKeys.length - 1, Math.floor(beatProgress * skinKeys.length));
+      if (state.activeSkin !== skinKeys[sIdx]) {
+        state.activeSkin = skinKeys[sIdx];
+        refreshFrogMaterialsForPack();
+        spawnPollenBurst(todeRoot.position.clone().add(new THREE.Vector3(0, 1.0, 0)), 10);
+      }
+      todeRoot.position.y = Math.abs(Math.sin(now * 0.0055)) * 0.32;
+      state.targetYaw = beatProgress * Math.PI * 2;
+      if (beatProgress > 0.65) {
+        state.bonkRecoilTimer = 0.15; // Briefly show dizzy spiral eyes too!
+      } else {
+        state.chewTimer = 0.25; // Joyful happy chevron eyes!
+      }
+    } else if (ch.todeAction === 'first_person_hops') {
+      if (state.storyIntroStepTimer > 0.7 && state.gridZ < 1) triggerDemoHop(0, 1);
+      else if (state.storyIntroStepTimer > 1.7 && state.gridZ < 2) triggerDemoHop(0, 1);
+      else if (state.storyIntroStepTimer > 2.7 && state.gridZ < 3) triggerDemoHop(0, 1);
+    } else if (ch.todeAction === 'stalk_meadow_bugs') {
+      todeRoot.position.y = getSurfaceY(state.gridX, state.gridZ) + Math.abs(Math.sin(now * 0.004)) * 0.16;
+      state.targetYaw = Math.PI + Math.sin(now * 0.003) * 0.35;
+    } else if (ch.todeAction === 'demo_tongue_snipe') {
+      if (state.storyIntroStepTimer > 1.05 && !state.storyIntroActionTriggered) {
+        state.storyIntroActionTriggered = true;
+        const targetBug = bees.find((b) => b.alive && b.gz >= 4 && b.gz <= 12) || bees[0];
+        if (targetBug) {
+          state.latchedBee = targetBug;
+          state.tongueTargetPos.copy(targetBug.mesh.position);
+          state.tongueState = 'extending';
+          state.tongueTimer = 0;
+          state.jawAngle = 0.68;
+          const dir = targetBug.mesh.position.clone().sub(todeRoot.position);
+          state.targetYaw = Math.atan2(dir.x, dir.z);
+          audio.playTongueWhip();
+        }
+      }
+    } else if (ch.todeAction === 'demo_lily_zip') {
+      if (state.storyIntroStepTimer > 1.0 && !state.storyIntroActionTriggered) {
+        state.storyIntroActionTriggered = true;
+        const post = grappleTargets.find((gt) => gt.kind === 'grapple_post' && gt.gz >= 10 && gt.gz <= 15) || grappleTargets[0];
+        if (post) {
+          state.latchedBee = post;
+          state.tongueTargetPos.copy(post.mesh.position);
+          state.tongueState = 'extending';
+          state.tongueTimer = 0;
+          state.jawAngle = 0.68;
+          const dir = post.mesh.position.clone().sub(todeRoot.position);
+          state.targetYaw = Math.atan2(dir.x, dir.z);
+          audio.playTongueWhip();
+        } else {
+          triggerDemoHop(-1, 2, true);
+        }
+      }
+    } else if (ch.todeAction === 'sky_realm_showcase' || ch.todeAction === 'ocean_realm_showcase') {
+      if (state.storyIntroStepTimer > 0.9 && !state.storyIntroActionTriggered) {
+        state.storyIntroActionTriggered = true;
+        triggerDemoHop(0, 1);
+      }
+      if (!state.hopActive) {
+        todeRoot.position.y = getSurfaceY(state.gridX, state.gridZ) + Math.abs(Math.sin(now * 0.004)) * 0.20;
+      }
+    } else if (ch.todeAction === 'hazard_gauntlet_dodge') {
+      if (state.storyIntroStepTimer > 0.8 && !state.storyIntroActionTriggered) {
+        state.storyIntroActionTriggered = true;
+        triggerDemoHop(0, 1);
+      }
+      if (state.storyIntroStepTimer > 2.1 && state.gridZ === 35 && !state.hopActive) {
+        state.bonkRecoilTimer = 0.35;
+        triggerDemoHop(-1, 0);
+        spawnFloatingPopup(todeRoot.position.clone().add(new THREE.Vector3(0, 1.3, 0)), 'DODGED CANNON!', '', 'obstacle');
+      }
+    } else if (ch.todeAction === 'checkpoint_celebrate') {
+      if (state.storyIntroStepTimer > 0.75 && !state.storyIntroActionTriggered) {
+        state.storyIntroActionTriggered = true;
+        triggerDemoHop(0, 1);
+        audio.playCheckpointChime();
+        spawnPollenBurst(todeRoot.position.clone().add(new THREE.Vector3(0, 1.1, 0)), 18);
+        spawnFloatingPopup(todeRoot.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 'CHECKPOINT SAVED!', '', 'checkpoint');
+      }
+    } else if (ch.todeAction === 'boss_faceoff') {
+      if (state.storyIntroStepTimer > 1.15 && !state.storyIntroActionTriggered) {
+        state.storyIntroActionTriggered = true;
+        const bossBee = bees.find((b) => b.type === 'boss') || bees[bees.length - 1];
+        if (bossBee) {
+          state.latchedBee = bossBee;
+          state.tongueTargetPos.copy(bossBee.mesh.position);
+          state.tongueState = 'extending';
+          state.tongueTimer = 0;
+          state.jawAngle = 0.68;
+          audio.playTongueWhip();
+        }
+      }
+    } else if (ch.todeAction === 'portal_finale_pose') {
+      const baseFloorY = getSurfaceY(state.gridX, state.gridZ);
+      const danceWave = Math.abs(Math.sin(now * 0.0075));
+      todeRoot.position.y = baseFloorY + danceWave * 0.95;
+      state.targetYaw = Math.PI + Math.sin(now * 0.004) * 0.45;
+      state.chewTimer = 0.3;
+    }
+
+    // Automatically advance to the next story beat when the current beat's duration completes
+    if (state.storyIntroStepTimer >= beatDur) {
+      advanceStoryIntroStep();
+    }
   } else if (state.mode === 'TRANSITION_TO_PLAY') {
     upperHeadPivot.rotation.z = 0;
     todeRoot.position.x = THREE.MathUtils.lerp(todeRoot.position.x, 0, rawDt * 6);
@@ -956,34 +1096,69 @@ function animate(now) {
     camera.position.lerp(faceCamPos, rawDt * 5);
     camera.lookAt(faceLookAt);
   } else if (state.mode === 'STORY_INTRO') {
-    state.storyIntroStepTimer += rawDt;
-    // Gentle idle animation on Tode at the starting pad during story intro
-    todeRoot.position.x = THREE.MathUtils.lerp(todeRoot.position.x, 0, rawDt * 5);
-    todeRoot.position.z = THREE.MathUtils.lerp(todeRoot.position.z, 0, rawDt * 5);
-    todeRoot.position.y = Math.abs(Math.sin(now * 0.0032)) * 0.18;
-    state.targetYaw = Math.PI + Math.sin(now * 0.0015) * 0.22;
-    upperHeadPivot.rotation.z = Math.sin(now * 0.002) * 0.04;
-  } else if (state.mode === 'STORY_INTRO') {
     const ch = STORY_INTRO_CHAPTERS[state.storyIntroStep] || STORY_INTRO_CHAPTERS[0];
-    const targetFov = (isPortrait ? ch.fov + 8 : ch.fov);
-    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, rawDt * 3.5);
+    const beatDur = ch.duration || 4.2;
+    const rawT = THREE.MathUtils.clamp(state.storyIntroStepTimer / beatDur, 0, 1);
+    const easeT = rawT * rawT * (3 - 2 * rawT); // Smoothstep interpolation
+
+    const fovA = ch.fovStart || 40;
+    const fovB = ch.fovEnd || fovA;
+    const targetFov = THREE.MathUtils.lerp(fovA, fovB, easeT) + (isPortrait ? 7 : 0);
+    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, Math.min(1, rawDt * 6.0));
     camera.updateProjectionMatrix();
 
-    const driftX = Math.sin(now * 0.0007) * 1.15;
-    const driftY = Math.cos(now * 0.0009) * 0.35;
-    const desiredCam = new THREE.Vector3(
-      ch.camPos.x + driftX,
-      ch.camPos.y + portraitZoomBack * 0.65 + driftY,
-      ch.camPos.z + portraitZoomBack * 0.85
-    );
-    const desiredLook = new THREE.Vector3(ch.lookAt.x, ch.lookAt.y, ch.lookAt.z);
-
     if (!window._storyLookVec) {
-      window._storyLookVec = desiredLook.clone();
+      window._storyLookVec = new THREE.Vector3(0, 1, -4);
     }
-    camera.position.lerp(desiredCam, Math.min(1, rawDt * 2.8));
-    window._storyLookVec.lerp(desiredLook, Math.min(1, rawDt * 3.2));
-    camera.lookAt(window._storyLookVec);
+
+    if (ch.camMode === 'first_person_tode') {
+      // True 1st-Person Toad Eye-Level POV looking down the winding 96-row causeway
+      camera.up.set(0, 1, 0);
+      const eyeWorldPos = todeRoot.position.clone().add(new THREE.Vector3(0, 1.48, -0.55));
+      camera.position.lerp(eyeWorldPos, Math.min(1, rawDt * 12.0));
+      const lookTarget = new THREE.Vector3(
+        THREE.MathUtils.lerp(ch.lookStart.x, ch.lookEnd.x, easeT),
+        THREE.MathUtils.lerp(ch.lookStart.y, ch.lookEnd.y, easeT),
+        THREE.MathUtils.lerp(ch.lookStart.z, ch.lookEnd.z, easeT)
+      );
+      window._storyLookVec.lerp(lookTarget, Math.min(1, rawDt * 8.0));
+      camera.lookAt(window._storyLookVec);
+    } else if (ch.camMode === 'orbit_tode') {
+      // 360-Degree Wardrobe Showcase Orbit around Tode
+      camera.up.set(0, 1, 0);
+      const orbitAng = easeT * Math.PI * 2.0;
+      const radius = 4.6 + portraitZoomBack * 0.65;
+      const desiredCam = new THREE.Vector3(
+        todeRoot.position.x + Math.sin(orbitAng) * radius,
+        todeRoot.position.y + 2.15 + Math.sin(easeT * Math.PI) * 0.55,
+        todeRoot.position.z + Math.cos(orbitAng) * radius
+      );
+      camera.position.lerp(desiredCam, Math.min(1, rawDt * 8.0));
+      const desiredLook = todeRoot.position.clone().add(new THREE.Vector3(0, 0.85, 0));
+      window._storyLookVec.lerp(desiredLook, Math.min(1, rawDt * 10.0));
+      camera.lookAt(window._storyLookVec);
+    } else {
+      // Keyframed Cinematic Dolly / Crane / Dutch-Angle Shot
+      if (ch.camMode === 'dutch_action') {
+        const tilt = Math.sin(easeT * Math.PI) * 0.085;
+        camera.up.set( tilt, 1, 0 ).normalize();
+      } else {
+        camera.up.set(0, 1, 0);
+      }
+      const desiredCam = new THREE.Vector3(
+        THREE.MathUtils.lerp(ch.camStart.x, ch.camEnd.x, easeT),
+        THREE.MathUtils.lerp(ch.camStart.y, ch.camEnd.y, easeT) + portraitZoomBack * 0.55,
+        THREE.MathUtils.lerp(ch.camStart.z, ch.camEnd.z, easeT) + portraitZoomBack * 0.75
+      );
+      const desiredLook = new THREE.Vector3(
+        THREE.MathUtils.lerp(ch.lookStart.x, ch.lookEnd.x, easeT),
+        THREE.MathUtils.lerp(ch.lookStart.y, ch.lookEnd.y, easeT),
+        THREE.MathUtils.lerp(ch.lookStart.z, ch.lookEnd.z, easeT)
+      );
+      camera.position.lerp(desiredCam, Math.min(1, rawDt * 5.2));
+      window._storyLookVec.lerp(desiredLook, Math.min(1, rawDt * 6.0));
+      camera.lookAt(window._storyLookVec);
+    }
   } else if (state.mode === 'TRANSITION_TO_PLAY') {
     const t = state.transitionProgress;
     const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;

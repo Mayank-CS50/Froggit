@@ -771,39 +771,150 @@ function transitionToFloor(targetLevel, resetRun = false) {
   audio.playPortalChord(state.floorLevel >= 0);
 }
 
+function getStoryIntroTotalDuration() {
+  return STORY_INTRO_CHAPTERS.reduce((acc, ch) => acc + (ch.duration || 4.0), 0);
+}
+
+function setupStoryIntroBeatScene(stepIdx) {
+  const ch = STORY_INTRO_CHAPTERS[stepIdx] || STORY_INTRO_CHAPTERS[0];
+  state.storyIntroActionTriggered = false;
+
+  // Switch 3D world floor dynamically if this story beat showcases another realm (+2F Star Temple, -2F Kelp Trench, or 0F Ground Meadow)
+  const desiredFloor = typeof ch.floorLevel === 'number' ? ch.floorLevel : 0;
+  if (state.floorLevel !== desiredFloor) {
+    state.floorLevel = desiredFloor;
+    buildRoadwayWorld();
+    populateRoadwayBees();
+    audio.playPortalChord(desiredFloor >= 0);
+  }
+
+  // Apply showcase skin for this beat (or start with emerald for the cycling wardrobe beat)
+  if (ch.skin && ch.skin !== 'cycle' && FROG_SKINS[ch.skin]) {
+    state.activeSkin = ch.skin;
+    refreshFrogMaterialsForPack();
+  }
+
+  // Reset any active tongue or hop state between cuts
+  state.hopActive = false;
+  state.tongueState = 'idle';
+  state.latchedBee = null;
+  tongueGroup.visible = false;
+  tongueTipMesh.visible = false;
+  state.bonkRecoilTimer = 0;
+  state.chewTimer = 0;
+  camera.up.set(0, 1, 0);
+
+  // Position Tode & trigger beat-specific opening choreography
+  const placeTodeAtGrid = (gx, gz, yaw = Math.PI) => {
+    const sy = getSurfaceY(gx, gz);
+    state.gridX = gx;
+    state.gridZ = gz;
+    todeRoot.position.set(gx * TILE_SIZE, sy, -gz * TILE_SIZE);
+    todeRoot.rotation.set(0, yaw, 0);
+    state.targetYaw = yaw;
+    state.currentYaw = yaw;
+  };
+
+  switch (ch.todeAction) {
+    case 'hero_awaken':
+      placeTodeAtGrid(0, 0, 0.15);
+      audio.playFrogRibbit();
+      break;
+    case 'wardrobe_expressions':
+      placeTodeAtGrid(0, 0, 0.0);
+      state.chewTimer = 1.6;
+      break;
+    case 'first_person_hops':
+      placeTodeAtGrid(0, 0, Math.PI);
+      break;
+    case 'stalk_meadow_bugs':
+      placeTodeAtGrid(getTrackCenterCol(0, 4), 4, Math.PI);
+      break;
+    case 'demo_tongue_snipe':
+      placeTodeAtGrid(getTrackCenterCol(0, 4), 4, Math.PI);
+      break;
+    case 'demo_lily_zip':
+      placeTodeAtGrid(getTrackCenterCol(0, 9), 9, Math.PI);
+      break;
+    case 'sky_realm_showcase':
+      placeTodeAtGrid(getTrackCenterCol(2, 6), 6, Math.PI);
+      break;
+    case 'hazard_gauntlet_dodge':
+      placeTodeAtGrid(getTrackCenterCol(0, 34), 34, Math.PI);
+      break;
+    case 'checkpoint_celebrate':
+      placeTodeAtGrid(getTrackCenterCol(0, 27), 27, Math.PI);
+      break;
+    case 'ocean_realm_showcase':
+      placeTodeAtGrid(getTrackCenterCol(-2, 6), 6, Math.PI);
+      break;
+    case 'boss_faceoff':
+      placeTodeAtGrid(getTrackCenterCol(0, 88), 88, Math.PI);
+      break;
+    case 'portal_finale_pose':
+      placeTodeAtGrid(0, 92, Math.PI);
+      state.chewTimer = 2.0;
+      break;
+    default:
+      placeTodeAtGrid(0, 0, Math.PI);
+      break;
+  }
+
+  // Snap camera cleanly at cut boundaries when the camera mode or realm changes
+  if (ch.camStart && ch.camMode !== 'first_person_tode' && ch.camMode !== 'orbit_tode') {
+    camera.position.set(ch.camStart.x, ch.camStart.y, ch.camStart.z);
+    if (!window._storyLookVec) window._storyLookVec = new THREE.Vector3();
+    window._storyLookVec.set(ch.lookStart.x, ch.lookStart.y, ch.lookStart.z);
+    camera.lookAt(window._storyLookVec);
+  }
+}
+
 function renderStoryIntroStepUI() {
   const ch = STORY_INTRO_CHAPTERS[state.storyIntroStep] || STORY_INTRO_CHAPTERS[0];
   const stepEl = document.getElementById('story-intro-step');
+  const povEl = document.getElementById('story-intro-pov');
+  const realmPillEl = document.getElementById('story-intro-realm-pill');
   const badgeEl = document.getElementById('story-intro-badge');
   const titleEl = document.getElementById('story-intro-title');
   const textEl = document.getElementById('story-intro-text');
   const hintEl = document.getElementById('story-intro-hint');
-  const nextBtnText = document.getElementById('story-intro-next-label');
   const dotsEl = document.getElementById('story-intro-dots');
 
   if (stepEl) stepEl.textContent = ch.step;
+  if (povEl) povEl.textContent = ch.povLabel || '🎥 CINEMATIC CAMERA';
+  if (realmPillEl) {
+    const fCfg = FLOORS[ch.floorLevel || 0] || FLOORS[0];
+    const codeStr = (ch.floorLevel || 0) === 0 ? '0F' : ((ch.floorLevel > 0 ? '+' : '') + ch.floorLevel + 'F');
+    realmPillEl.textContent = `${fCfg.icon} ${fCfg.name} (${codeStr})`;
+  }
   if (badgeEl) badgeEl.textContent = ch.badge;
   if (titleEl) titleEl.textContent = ch.title;
-  if (textEl) textEl.textContent = ch.text;
-  if (hintEl) hintEl.textContent = ch.hint;
-  if (nextBtnText) {
-    nextBtnText.textContent = state.storyIntroStep >= STORY_INTRO_CHAPTERS.length - 1
-      ? 'Start Hopping!'
-      : 'Next';
+  if (textEl) {
+    textEl.style.opacity = '0.25';
+    textEl.style.transform = 'translateY(4px)';
+    textEl.textContent = ch.narrator || ch.text || '';
+    requestAnimationFrame(() => {
+      textEl.style.opacity = '1';
+      textEl.style.transform = 'translateY(0)';
+    });
   }
+  if (hintEl) hintEl.textContent = ch.hint;
+
+  // Render 4 chapter indicator pills highlighting which of the 4 chapters is active
   if (dotsEl) {
-    dotsEl.innerHTML = STORY_INTRO_CHAPTERS.map((_, i) => `
-      <span class="h-1.5 rounded-full transition-all duration-300 ${i === state.storyIntroStep ? 'w-6 bg-emerald-400' : 'w-1.5 bg-white/25'}"></span>
+    const activeChap = ch.chapterNum || 1;
+    dotsEl.innerHTML = [1, 2, 3, 4].map((cNum) => `
+      <span class="h-1.5 rounded-full transition-all duration-300 ${cNum === activeChap ? 'w-7 bg-emerald-400 shadow-[0_0_8px_#34d399]' : (cNum < activeChap ? 'w-3 bg-emerald-400/50' : 'w-2 bg-white/20')}"></span>
     `).join('');
   }
 }
 
 function advanceStoryIntroStep() {
   if (state.mode !== 'STORY_INTRO') return;
-  audio.playUiClick();
   if (state.storyIntroStep < STORY_INTRO_CHAPTERS.length - 1) {
     state.storyIntroStep += 1;
     state.storyIntroStepTimer = 0;
+    setupStoryIntroBeatScene(state.storyIntroStep);
     renderStoryIntroStepUI();
   } else {
     finishStoryIntroAndPlay();
@@ -813,6 +924,28 @@ function advanceStoryIntroStep() {
 function finishStoryIntroAndPlay() {
   if (state.mode !== 'STORY_INTRO') return;
   state.storyIntroSeen = true;
+  persistSettings();
+
+  // Restore player's selected skin and 0F Ground Meadow starting state
+  state.activeSkin = state.storyIntroSavedSkin || 'emerald';
+  state.floorLevel = 0;
+  state.hopActive = false;
+  state.tongueState = 'idle';
+  state.latchedBee = null;
+  tongueGroup.visible = false;
+  tongueTipMesh.visible = false;
+  camera.up.set(0, 1, 0);
+
+  buildRoadwayWorld();
+  populateRoadwayBees();
+
+  state.gridX = 0;
+  state.gridZ = 0;
+  todeRoot.position.set(0, 0, 0);
+  todeRoot.rotation.set(0, Math.PI, 0);
+  state.targetYaw = Math.PI;
+  state.currentYaw = Math.PI;
+
   const overlay = document.getElementById('story-intro-overlay');
   if (overlay) {
     overlay.classList.add('hidden');
@@ -820,7 +953,6 @@ function finishStoryIntroAndPlay() {
   }
   document.getElementById('gameplay-hud').classList.remove('hidden');
   document.body.classList.add('is-playing-touch');
-  state.targetYaw = Math.PI;
   state.mode = 'TRANSITION_TO_PLAY';
   state.previousModeBeforePause = 'PLAYING';
   state.transitionProgress = 0;
@@ -843,12 +975,12 @@ function startPlayFromLanding(initialFloor = 0, forceStoryIntro = true) {
     if (forceStoryIntro && initialFloor === 0 && !state.storyIntroSeen) {
       state.mode = 'STORY_INTRO';
       state.previousModeBeforePause = 'STORY_INTRO';
+      state.storyIntroSavedSkin = state.activeSkin || 'emerald';
       state.storyIntroStep = 0;
       state.storyIntroStepTimer = 0;
-      todeRoot.position.set(0, 0, 0);
-      todeRoot.rotation.set(0, Math.PI, 0);
-      state.targetYaw = Math.PI;
-      state.currentYaw = Math.PI;
+      state.storyIntroTotalTimer = 0;
+      state.storyIntroTotalDuration = getStoryIntroTotalDuration();
+      setupStoryIntroBeatScene(0);
       renderStoryIntroStepUI();
       const overlay = document.getElementById('story-intro-overlay');
       if (overlay) {

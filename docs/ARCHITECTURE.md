@@ -2,7 +2,7 @@
 
 ## 1. Segregated Directory Structure
 
-```text
+```
 the-froggit/
 ├── index.html                         # Clean semantic DOM shell & UI modal templates
 ├── package.json                       # Dev server & build scripts
@@ -37,22 +37,23 @@ the-froggit/
     ├── input/
     │   └── controls.js                # Keyboard, Mouse Raycaster, Touch D-Pad/Swipe & UI bindings
     └── main.js                        # 60 FPS animation loop, hazard telegraphs, camera & Gamepad API
+
 ```
 
 ## 2. Module Responsibilities & Load Order
 
-| Order | Module File | Lines | Primary Responsibility & Exported Symbols |
-| :---: | :--- | :---: | :--- |
-| **1** | `src/styles/tokens.css` | `135` | CSS custom properties (`--font-*`, `--bg-*`, `--z-canvas` to `--z-modals`) and base reset. |
-| **2** | `src/styles/components.css` | `299` | Glassmorphic `.ui-panel`, `.hud-icon-btn`, `.minimap-frame`, `.touch-dpad-btn`, `.touch-grapple-btn`, and range sliders. |
-| **3** | `src/styles/animations.css` | `367` | Hero logo lockup, 300% `.score-popup-*` callouts, `.safe-top-pad`/`.safe-bottom-pad`, mobile landscape media queries, and circular iris wipe. |
-| **4** | `src/audio/ProceduralAudio.js` | `487` | `AUDIO_CUSTOM_SLOTS` (25 slots), `window.registerFroggitAudio()`, and `ProceduralAudio` synthesizer class (`audio`). |
-| **5** | `src/state/gameState.js` | `315` | `TILE_SIZE`, `ROADWAY_LENGTH`, `CHECKPOINT_ROWS`, `FLOORS` (7 realms), `FROG_SKINS` (5 skins), `state` store, and `localStorage` persistence. |
-| **6** | `src/rendering/sceneAndShaders.js` | `528` | Three.js `scene`, `camera`, `renderer`, lights, and 256×256 procedural gradient + bump-map texture generator (`createVoxelMaterial`). |
-| **7** | `src/entities/todeRig.js` | `522` | Articulated 3D Tode rig (`todeRoot`), live skin switcher (`refreshFrogMaterialsForPack`), pink tongue (`tongueGroup`), and 3D lock-on reticle (`targetReticleGroup`). |
-| **8** | `src/world/courseBuilder.js` | `1,733` | 96-row winding centerline math (`getTrackCenterCol`), hill elevations (`getTileElevation`), `THREE.InstancedMesh` cliff batching, and all 9 obstacle/target spawners. |
-| **9** | `src/entities/enemiesAndParticles.js` | `564` | 5 multi-part 3D enemy archetypes (`buildThemeEnemyMesh`), 3-shield Guardian Boss, 3D pollen bursts (`spawnPollenBurst`), and 300% floating callouts (`spawnFloatingPopup`). |
-| **10** | `src/ui/minimapAndWorldMap.js` | `677` | 60 FPS 2D orthographic minimap (`renderLiveMinimap`) and interactive 7-Realm World Showcase modal (`renderCrossSectionMap`). |
-| **11** | `src/gameplay/mechanicsAndModals.js` | `769` | `attemptHop` (1-slot pre-input buffer), `fireTongueGrapple`, `onSwallowBee`, `knockbackTode`, `damageTode`, `reviveAtLastCheckpoint`, and circular iris transitions. |
-| **12** | `src/input/controls.js` | `399` | Keyboard (`WASD`/Arrows/`Space`/`Enter`/`Esc`/`H`), Mouse raycaster, Touch D-Pad/Swipe + Haptics, and modal button event listeners. |
-| **13** | `src/main.js` | `989` | `animate(now)` 60 FPS loop: scrolling shaders, pre-strike hazard telegraphs, enemy patrols, dogleg look-ahead camera, 3D reticle lock-on, and HTML5 Gamepad API polling. |
+| Order | Module File | Lines | Primary Responsibility & Exported Symbols | 
+| ----- | ----- | ----- | ----- | 
+| **1** | `src/styles/tokens.css` | `135` | CSS custom properties (`--font-*`, `--bg-*`, `--z-canvas` to `--z-modals`) and base reset. | 
+| **2** | `src/styles/components.css` | `299` | Glassmorphic `.ui-panel`, `.hud-icon-btn`, `.minimap-frame`, `.touch-dpad-btn`, `.touch-grapple-btn`, and range sliders. | 
+| **3** | `src/styles/animations.css` | `367` | Hero logo lockup, 300% `.score-popup-*` callouts, `.safe-top-pad`/`.safe-bottom-pad`, mobile landscape media queries, and circular iris wipe. | 
+| **4** | `src/audio/ProceduralAudio.js` | `487` | `AUDIO_CUSTOM_SLOTS` (25 slots), `window.registerFroggitAudio()`, and `ProceduralAudio` synthesizer class (`audio`). | 
+| **5** | `src/state/gameState.js` | `315` | `TILE_SIZE`, `ROADWAY_LENGTH`, `CHECKPOINT_ROWS`, `FLOORS` (7 realms), `FROG_SKINS` (5 skins), `state` store, and `localStorage` persistence. | 
+| **6** | `src/rendering/sceneAndShaders.js` | `528` | Three.js `scene`, `camera`, `renderer`, lights, and 256×256 procedural gradient + bump-map texture generator (`createVoxelMaterial`). | 
+| **7** | `src/entities/todeRig.js` | `522` | Articulated 3D Tode rig (`todeRoot`), live skin switcher (`refreshFrogMaterialsForPack`), pink tongue (`tongueGroup`), and 3D lock-on reticle (`targetReticleGroup`). | 
+| **8** | `src/world/courseBuilder.js` | `1,733` | 96-row winding centerline math (`getTrackCenterCol`), hill elevations (`getTileElevation`), `THREE.InstancedMesh` cliff batching, and all 9 obstacle/target spawners. | 
+| **9** | `src/entities/enemiesAndParticles.js` | `564` | 5 multi-part 3D enemy archetypes (`buildThemeEnemyMesh`), 3-shield Guardian Boss, 3D pollen bursts (`spawnPollenBurst`), and 300% floating callouts (`spawnFloatingPopup`). | 
+| **10** | `src/ui/minimapAndWorldMap.js` | `677` | 60 FPS 2D orthographic minimap (`renderLiveMinimap`) and interactive 7-Realm World Showcase modal (`renderCrossSectionMap`). | 
+| **11** | `src/gameplay/mechanicsAndModals.js` | `769` | `attemptHop` (1-slot pre-input buffer), `fireTongueGrapple`, `onSwallowBee`, `knockbackTode`, `damageTode`, `reviveAtLastCheckpoint`, and circular iris transitions. | 
+| **12** | `src/input/controls.js` | `399` | Keyboard (`WASD`/Arrows/`Space`/`Enter`/`Esc`/`H`), Mouse raycaster, Touch D-Pad/Swipe + Haptics, and modal button event listeners. | 
+| **13** | `src/main.js` | `989` | `animate(now)` 60 FPS loop: scrolling shaders, pre-strike hazard telegraphs, enemy patrols, dogleg look-ahead camera, 3D reticle lock-on, and HTML5 Gamepad API polling. | 

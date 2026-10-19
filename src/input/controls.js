@@ -9,10 +9,11 @@ window.addEventListener('keydown', (e) => {
   if (state.mode === 'STORY_INTRO' && !isAnyModalOpen()) {
     if (e.code === 'Escape') {
       e.preventDefault();
+      audio.playUiClick();
       finishStoryIntroAndPlay();
       return;
     }
-    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'ArrowRight' || e.code === 'KeyD') {
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') {
       e.preventDefault();
       advanceStoryIntroStep();
       return;
@@ -21,9 +22,11 @@ window.addEventListener('keydown', (e) => {
       e.preventDefault();
       state.storyIntroStep -= 1;
       state.storyIntroStepTimer = 0;
+      setupStoryIntroBeatScene(state.storyIntroStep);
       renderStoryIntroStepUI();
       return;
     }
+    return;
   }
 
   if (e.code === 'KeyM' && document.activeElement !== document.getElementById('input-player-name')) {
