@@ -3,9 +3,10 @@
   "version": "8.0.0",
   "description": "THE FROGGIT — Cross-Platform 3D Voxel Sky & Abyss Obstacle Campaign",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build.js",
     "preview": "vite preview",
     "serve": "python3 -m http.server 8080"
   },

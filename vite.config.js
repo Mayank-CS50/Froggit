@@ -8,7 +8,7 @@ export default defineConfig({
     open: true
   },
   build: {
-    outDir: 'dist-bundle',
-    emptyOutDir: true
+    outDir: 'dist',
+    emptyOutDir: false
   }
 });
