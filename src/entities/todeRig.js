@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Articulated 3D Tode Character Rig, Skin Switcher, Pink Tongue & 3D Lock-On Reticle
+ * THE FROGGIT — Mascot Tode 3D Rig, Dynamic Skin Switcher, Pink Tongue & 3D Lock-On Reticle
  * File: src/entities/todeRig.js
  */
 // =========================================================================
@@ -523,4 +523,3 @@ reticleOuterRing.rotation.x = -Math.PI / 2;
 targetReticleGroup.add(reticleOuterRing);
 targetReticleGroup.visible = false;
 scene.add(targetReticleGroup);
-

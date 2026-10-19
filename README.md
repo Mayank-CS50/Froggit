@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-8.0.0-blue.svg?style=for-the-badge)](package.json)
+[![Version](https://img.shields.io/badge/version-8.0.0--ARGON-blue.svg?style=for-the-badge)](package.json)
 [![Three.js](https://img.shields.io/badge/Three.js-r128-black.svg?style=for-the-badge&logo=three.js)](https://threejs.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4+-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Web Audio API](https://img.shields.io/badge/Web_Audio_API-Procedural-emerald.svg?style=for-the-badge)](src/audio/ProceduralAudio.js)
@@ -22,6 +22,7 @@
 
 - [🌟 Overview & Core Highlights](#-overview--core-highlights)
 - [🗺️ The 7-Realm Vertical World Stack](#️-the-7-realm-vertical-world-stack)
+- [👾 Biome-Authentic Sculpted Voxel Mascot Enemies](#-biome-authentic-sculpted-voxel-mascot-enemies)
 - [👅 Core Gameplay & Combat Mechanics](#-core-gameplay--combat-mechanics)
 - [📁 Project Architecture & File Structure](#-project-architecture--file-structure)
 - [🚀 Quickstart & Getting Started](#-quickstart--getting-started)
@@ -41,11 +42,12 @@
 
 | Pillar | Feature & Competitive Advantage |
 | :--- | :--- |
-| **👅 Offensive Tongue-Grapple Combat** | Snipe lethal patrolling bugs mid-air for pentatonic combo multipliers (`120 × combo` pts), reel in outer-lane **Golden Fireflies (`✨`)**, and latch onto **Grapple Lily-Posts (`🪷`)** to zip across chasms. |
+| **👅 Offensive Tongue-Grapple Combat** | Snipe lethal patrolling creatures mid-air for pentatonic combo multipliers (`120 × combo` pts), reel in outer-lane **Golden Fireflies (`✨`)**, and latch onto **Grapple Lily-Posts (`🪷`)** to zip across chasms. |
 | **🎯 Live 3D Target Lock-On Reticle** | A pulsing 3D reticle (`targetReticleGroup`) highlights the exact trajectory and entity Tode will strike next, eliminating depth-perception guesswork on isometric grids. |
 | **🗺️ 7-Tier Vertical World Stack** | Branching progression at every finish shrine: leap into the **☀️ Sky Ascent Hoop** (`+1` to `+3` Sun Crown) or dive into the **🌊 Ocean Abyss Hoop** (`-1` to `-3` Mariana Abyss). |
+| **🦅 Biome-Authentic Voxel Mascot Fauna** | 100% sculpted voxel mascot creatures: **Aquatic Fauna** in the Abyss (Reef Sharks, Squids, Reef Fishes, Jellyfish), **Sky Birds** in Heaven (Eagles, Falcons, Macaw Parrots, Swans), and **Meadow Insects** on Ground (Hornets, Scorpion-Beetles, Dragonflies, Moths). |
 | **🪓 Fair Knockback vs. Lethal Hazard Split** | Traps (**Bastion Cannons**, **Swinging Battle-Axes**, **Vertical Thwomp Monoliths**, **Rolling Spiked Logs**, **Rotating Sweepers**, and **Push-Blocks**) feature pre-strike telegraphs and physically shove Tode rather than causing cheap instant deaths. |
-| **🛡️ 3-Shield Floor Guardian Boss** | Encounter the crowned **Floor Guardian Warlord** at Row `90` of every realm, requiring 3 precision tongue strikes to break orbiting crystal shields before devouring the boss. |
+| **🛡️ 3-Shield Floor Guardian Boss** | Encounter the crowned **Floor Guardian Warlord** at Row `90` of every realm (Kraken, Thunder-Eagle, Meadow Guardian), requiring 3 precision tongue strikes to break orbiting crystal shields before devouring the boss. |
 | **📱 Universal Cross-Platform Ergonomics** | Runs at 60 FPS across **Desktop (WASD / Mouse Aim)**, **Mobile (Touch D-Pad + Swipe + Haptic `👅 WHIP` Button + Dynamic FOV Compensation)**, and **Bluetooth / USB Controllers (HTML5 Gamepad API)**. |
 | **🎨 Meta-Progression & 5 3D Toad Skins** | Earn persistent **Golden Fireflies (`✨`)** to unlock and preview 5 custom 3D shader skins: **🐸 Emerald**, **💎 Cobalt Dart**, **👑 Gold Shogun**, **🪼 Bio-Abyss**, and **🌸 Sakura**. |
 | **⚡ Zero-Asset Procedural Engine** | 100% procedural 256×256 canvas gradient and bump-map shaders, single-draw-call `THREE.InstancedMesh` cliff batching, and a **25-slot Web Audio synthesizer** with custom audio hooks. |
@@ -59,23 +61,35 @@ Every realm spans **96 rows** (`ROADWAY_LENGTH = 96`, `TILE_SIZE = 2.0`), design
 | Floor | Realm Name | Theme | Width Scale | Speed Mult | Signature Visuals & Environment |
 | :---: | :--- | :--- | :---: | :---: | :--- |
 | **`+3`** | **👑 Sun Crown** | `heaven` | `75%` | `1.45x` | Golden solar orbit citadel, marble colonnades, Apex Victory Finale. |
-| **`+2`** | **✨ Star Temple** | `heaven` | `85%` | `1.30x` | Starlit astral causeways, diamond crystal obelisks, diving Dragonfly Wyverns. |
-| **`+1`** | **☁️ Sky Gardens** | `heaven` | `92%` | `1.15x` | Pearlescent cloud billows, twin-wing sky bridges, spring bounce pads. |
+| **`+2`** | **✨ Star Temple** | `heaven` | `85%` | `1.30x` | Starlit astral causeways, diamond crystal obelisks, diving Peregrine Falcons. |
+| **`+1`** | **☁️ Sky Gardens** | `heaven` | `92%` | `1.15x` | Pearlescent cloud billows, twin-wing sky bridges, spring bounce pads, Golden Eagles. |
 | **`0`** | **🌿 Ground Meadow** | `ground` | `100%` | `1.00x` | Emerald clover turf, pine waterfall islands, dual-layer river, Royal Hornets. |
-| **`-1`** | **🐠 Coral Reef** | `ocean` | `92%` | `1.15x` | Turquoise coral atolls, rising bubble vents, moving atoll ferries, Reef Scorpions. |
-| **`-2`** | **🪼 Kelp Trench** | `ocean` | `85%` | `1.30x` | Deep indigo currents, giant kelp forests, naval sea-mines, Neon Jellyfish. |
-| **`-3`** | **🌊 Mariana Abyss** | `ocean` | `75%` | `1.45x` | Midnight caustic rifts, volcanic obsidian monoliths, Apex Abyss Finale. |
+| **`-1`** | **🐠 Coral Reef** | `ocean` | `92%` | `1.15x` | Turquoise coral atolls, rising bubble vents, moving atoll ferries, Tropical Reef Fishes. |
+| **`-2`** | **🪼 Kelp Trench** | `ocean` | `85%` | `1.30x` | Deep indigo currents, giant kelp forests, naval sea-mines, Neon Jellyfish & Squids. |
+| **`-3`** | **🌊 Mariana Abyss** | `ocean` | `75%` | `1.45x` | Midnight caustic rifts, volcanic obsidian monoliths, Apex Abyss Megalodon/Kraken Finale. |
+
+---
+
+## 👾 Biome-Authentic Sculpted Voxel Mascot Enemies
+
+Every creature is generated procedurally in Tode's rounded-voxel mascot aesthetic—complete with raised mascot eye sockets, white sclera plates, crisp catchlight glints, and articulated appendages:
+
+| Biome Domain | Creature Archetypes | Signature Visuals & Articulation | Row 90 Guardian Boss |
+| :--- | :--- | :--- | :--- |
+| **🌊 Ocean Abyss (`-1F` to `-3F`)** | **Reef Shark**, **Giant Squid**, **Tropical Reef Fish**, **Neon Jellyfish** | Sweeping triangular dorsal fins, gill slits, articulated siphon mantles, undulating oral arms & translucent bell margins. | **Megalodon / Kraken Warlord** with 3 orbiting abyssal crystal shields. |
+| **☁️ Sky & Heaven (`+1F` to `+3F`)** | **Golden Eagle**, **Peregrine Falcon**, **Scarlet Macaw**, **Celestial Swan** | Tiered swept aero-wings, curved hooked beaks, razor talons, S-curved necks & graduated tail fans. | **Thunder-Eagle Warlord** with 3 orbiting celestial solar shields. |
+| **🌿 Ground Meadow (`0F`)** | **Royal Hornet**, **Scorpion-Beetle**, **Dragonfly**, **Monarch Moth** | Striped abdominal segments, dual iridescent wing pairs, arched tail stingers & feathered antennae fans. | **Meadow Guardian Warlord** with 3 orbiting emerald crystal shields. |
 
 ---
 
 ## 👅 Core Gameplay & Combat Mechanics
 
 ```
-  [Patrolling Bug]  <---  (Pink Tongue Grapple)  <---  [Tode the Frog]
-        │                                                     │
-   Devoured (+120 × combo pts)                         Snaps Forward
-        │                                                     │
-   Combo Counter Up (1x → 8x+)                        Stat Stature Scale (+22%)
+  [Patrolling Creature]  <---  (Pink Tongue Grapple)  <---  [Tode the Frog]
+            │                                                     │
+       Devoured (+120 × combo pts)                         Snaps Forward
+            │                                                     │
+       Combo Counter Up (1x → 8x+)                        Stat Stature Scale (+22%)
 ```
 
 - **Tongue Sniping**: Press `Spacebar`, `Left-Click`, or tap `👅 WHIP` to fire Tode's high-velocity tongue beam toward lock-on targets up to `8.4` tiles away.
@@ -99,7 +113,7 @@ Froggit/
 ├── vite.config.js                     # Vite build & dev server config
 ├── README.md                          # Project documentation & reference manual
 ├── dist/
-│   └── froggit.html                   # Zero-dependency standalone single-file build
+│   └── froggit.html                   # Zero-dependency standalone single-file build (453 KB)
 ├── docs/
 │   ├── ARCHITECTURE.md                # Module dependency graph & state lifecycle
 │   ├── AUDIO_SLOTS_GUIDE.md           # 25-slot custom audio integration guide
@@ -118,7 +132,7 @@ Froggit/
     │   └── sceneAndShaders.js         # Three.js scene, camera, lights & 256x256 shader engine
     ├── entities/
     │   ├── todeRig.js                 # Articulated 3D Tode rig, skin updater & 3D lock-on reticle
-    │   └── enemiesAndParticles.js     # 5 enemy archetypes, 3-shield Boss & particle bursts
+    │   └── enemiesAndParticles.js     # Biome voxel fauna (Sharks, Eagles, Hornets) & 3-shield Boss
     ├── world/
     │   └── courseBuilder.js           # 96-row track math, obstacles & InstancedMesh cliffs
     ├── ui/

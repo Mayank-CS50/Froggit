@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Three.js Scene Setup & 256x256 Procedural Gradient/Bump Shader Engine
+ * THE FROGGIT — Three.js Scene, Lighting & 256x256 Procedural Gradient/Bump Shader Engine
  * File: src/rendering/sceneAndShaders.js
  */
 // =========================================================================
@@ -529,4 +529,3 @@ function createSkyDomeTexture(topColor, midColor, horizonColor, theme = 'ground'
   tex.needsUpdate = true;
   return tex;
 }
-

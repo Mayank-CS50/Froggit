@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Reusable UI Panels, HUD Controls, Minimap & Touch D-Pad
+ * THE FROGGIT — Reusable UI Surfaces, HUD Buttons, Minimap Frame & Touch Controls
  * File: src/styles/components.css
  */
 /* =========================================================================
@@ -300,4 +300,3 @@ input[type="range"].ui-slider::-moz-range-thumb {
   background: linear-gradient(90deg, #34d399 0%, rgba(52, 211, 153, 0.2) 100%);
   border-radius: 2px;
 }
-

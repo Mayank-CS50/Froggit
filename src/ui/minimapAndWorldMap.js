@@ -165,11 +165,12 @@ function renderLiveMinimap() {
     const sx = toScreenX(gt.gx);
     const sy = toScreenY(gt.gz);
     if (gt.kind === 'grapple_post') {
-      minimapCtx.fillStyle = '#f472b6';
+      const isPassed = gt.passed || state.gridZ >= gt.gz;
+      minimapCtx.fillStyle = isPassed ? 'rgba(71, 85, 105, 0.55)' : '#f472b6';
       minimapCtx.beginPath();
       minimapCtx.arc(sx, sy, cellW * 0.28, 0, Math.PI * 2);
       minimapCtx.fill();
-      minimapCtx.strokeStyle = '#fef08a';
+      minimapCtx.strokeStyle = isPassed ? '#64748b' : '#fef08a';
       minimapCtx.lineWidth = 1.4;
       minimapCtx.stroke();
     } else {
@@ -218,10 +219,13 @@ function renderLiveMinimap() {
     if (prRow < startRow - 1 || prRow > endRow + 1) return;
     const sx = toScreenX(pr.mesh.position.x / TILE_SIZE);
     const sy = toScreenY(prRow);
-    minimapCtx.fillStyle = '#ef4444';
+    minimapCtx.fillStyle = '#f97316';
+    minimapCtx.strokeStyle = '#fef08a';
+    minimapCtx.lineWidth = 1.4;
     minimapCtx.beginPath();
-    minimapCtx.arc(sx, sy, 3.2, 0, Math.PI * 2);
+    minimapCtx.arc(sx, sy, 4.8, 0, Math.PI * 2);
     minimapCtx.fill();
+    minimapCtx.stroke();
   });
   pendulumAxes.forEach((ax) => {
     if (ax.gz < startRow - 1 || ax.gz > endRow + 1) return;
@@ -275,7 +279,7 @@ function renderLiveMinimap() {
     minimapCtx.fill();
   });
 
-  // 6. Draw Live Patrol Enemies (Top-Down Winged Sprite) & Floor Guardian Boss
+  // 6. Draw Live Patrol Enemies (Biome-Authentic Fish/Shark, Bird/Eagle, or Insect) & Floor Guardian Boss
   bees.forEach((b) => {
     if (!b.alive) return;
     const bRow = -b.mesh.position.z / TILE_SIZE;
@@ -285,21 +289,58 @@ function renderLiveMinimap() {
     const sy = toScreenY(bRow);
 
     const r = b.type === 'boss' ? 5.8 : 3.6;
-    // Wings
-    minimapCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    minimapCtx.beginPath();
-    minimapCtx.ellipse(sx - r * 0.9, sy, r * 0.65, r * 0.38, 0, 0, Math.PI * 2);
-    minimapCtx.ellipse(sx + r * 0.9, sy, r * 0.65, r * 0.38, 0, 0, Math.PI * 2);
-    minimapCtx.fill();
+    const col = b.minimapColor || (b.type === 'boss' ? '#f43f5e' : '#facc15');
 
-    // Body
-    minimapCtx.beginPath();
-    minimapCtx.arc(sx, sy, r, 0, Math.PI * 2);
-    minimapCtx.fillStyle = b.minimapColor || (b.type === 'boss' ? '#f43f5e' : '#facc15');
-    minimapCtx.fill();
-    minimapCtx.strokeStyle = '#0f172a';
-    minimapCtx.lineWidth = 1;
-    minimapCtx.stroke();
+    if (floorCfg.theme === 'ocean') {
+      // Aquatic Fish / Shark / Squid Top-Down Silhouette with Forked Tail Fin
+      minimapCtx.fillStyle = col;
+      minimapCtx.beginPath();
+      minimapCtx.moveTo(sx - r * 0.85, sy);
+      minimapCtx.lineTo(sx - r * 1.55, sy - r * 0.65);
+      minimapCtx.lineTo(sx - r * 1.30, sy);
+      minimapCtx.lineTo(sx - r * 1.55, sy + r * 0.65);
+      minimapCtx.closePath();
+      minimapCtx.fill();
+
+      minimapCtx.beginPath();
+      minimapCtx.ellipse(sx, sy, r * 1.15, r * 0.72, 0, 0, Math.PI * 2);
+      minimapCtx.fillStyle = col;
+      minimapCtx.fill();
+      minimapCtx.strokeStyle = '#0f172a';
+      minimapCtx.lineWidth = 1;
+      minimapCtx.stroke();
+    } else if (floorCfg.theme === 'heaven') {
+      // Soaring Sky Bird / Eagle / Parrot Top-Down Silhouette with Swept Wings
+      minimapCtx.fillStyle = 'rgba(254, 240, 138, 0.92)';
+      minimapCtx.beginPath();
+      minimapCtx.moveTo(sx - r * 1.5, sy - r * 0.35);
+      minimapCtx.quadraticCurveTo(sx, sy + r * 0.45, sx + r * 1.5, sy - r * 0.35);
+      minimapCtx.quadraticCurveTo(sx, sy - r * 0.1, sx - r * 1.5, sy - r * 0.35);
+      minimapCtx.fill();
+
+      minimapCtx.beginPath();
+      minimapCtx.arc(sx, sy, r * 0.85, 0, Math.PI * 2);
+      minimapCtx.fillStyle = col;
+      minimapCtx.fill();
+      minimapCtx.strokeStyle = '#0f172a';
+      minimapCtx.lineWidth = 1;
+      minimapCtx.stroke();
+    } else {
+      // Ground Meadow Winged Insect Silhouette
+      minimapCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      minimapCtx.beginPath();
+      minimapCtx.ellipse(sx - r * 0.9, sy, r * 0.65, r * 0.38, 0, 0, Math.PI * 2);
+      minimapCtx.ellipse(sx + r * 0.9, sy, r * 0.65, r * 0.38, 0, 0, Math.PI * 2);
+      minimapCtx.fill();
+
+      minimapCtx.beginPath();
+      minimapCtx.arc(sx, sy, r, 0, Math.PI * 2);
+      minimapCtx.fillStyle = col;
+      minimapCtx.fill();
+      minimapCtx.strokeStyle = '#0f172a';
+      minimapCtx.lineWidth = 1;
+      minimapCtx.stroke();
+    }
   });
 
   // 7. Draw Live Pink Tongue Grapple Beam if active!
@@ -395,7 +436,7 @@ const WORLD_SHOWCASE_META = {
     gradient: 'linear-gradient(135deg, rgba(254, 240, 138, 0.96) 0%, rgba(251, 191, 36, 0.92) 100%)',
     textClass: 'text-slate-950',
     borderClass: 'border-amber-300',
-    elements: ['☀️ Solar Obelisks', '👁️ Seraphim Ophanim', '🪓 Dual Pendulums', '👑 Apex Finale'],
+    elements: ['☀️ Solar Obelisks', '🦅 Golden Eagles', '🦜 Singing Parrots', '👑 Apex Finale'],
     dioramaBg: 'linear-gradient(180deg, #1e3a8a 0%, #3b82f6 45%, #fde047 100%)',
     svg: `
       <svg viewBox="0 0 360 200" class="w-full h-full">
@@ -427,7 +468,7 @@ const WORLD_SHOWCASE_META = {
     gradient: 'linear-gradient(135deg, rgba(241, 245, 249, 0.95) 0%, rgba(186, 230, 253, 0.92) 100%)',
     textClass: 'text-slate-950',
     borderClass: 'border-sky-300',
-    elements: ['💎 Astral Crystals', '🏛️ Marble Pillars', '🐉 Wyvern Swoopers', '🗿 Sky Thwomps'],
+    elements: ['💎 Astral Crystals', '🦅 Peregrine Falcons', '🦜 Macaw Parrots', '🗿 Sky Thwomps'],
     dioramaBg: 'linear-gradient(180deg, #0f172a 0%, #2563eb 55%, #bae6fd 100%)',
     svg: `
       <svg viewBox="0 0 360 200" class="w-full h-full">
@@ -499,7 +540,7 @@ const WORLD_SHOWCASE_META = {
     gradient: 'linear-gradient(135deg, rgba(12, 74, 110, 0.94) 0%, rgba(14, 116, 144, 0.90) 100%)',
     textClass: 'text-cyan-100',
     borderClass: 'border-cyan-400',
-    elements: ['🪸 Pink Bio-Corals', '🫧 Bubble Vents', '⛴️ Atoll Ferries', '🦂 Reef Scorpions'],
+    elements: ['🪸 Pink Bio-Corals', '🐠 Reef Angelfish', '🦈 Reef Sharks', '⛴️ Atoll Ferries'],
     dioramaBg: 'linear-gradient(180deg, #0f2942 0%, #0284c7 55%, #22d3ee 100%)',
     svg: `
       <svg viewBox="0 0 360 200" class="w-full h-full">
@@ -519,7 +560,7 @@ const WORLD_SHOWCASE_META = {
     gradient: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 58, 138, 0.92) 100%)',
     textClass: 'text-sky-100',
     borderClass: 'border-blue-400',
-    elements: ['🌿 Giant Kelp Stalks', '🪼 Neon Jellyfish', '💣 Spiked Sea-Mines', '🪓 Trench Pendulums'],
+    elements: ['🌿 Giant Kelp Stalks', '🦑 Giant Squids', '🦈 Trench Sharks', '🪼 Neon Jellyfish'],
     dioramaBg: 'linear-gradient(180deg, #060d18 0%, #1e3a8a 60%, #0284c7 100%)',
     svg: `
       <svg viewBox="0 0 360 200" class="w-full h-full">
@@ -678,4 +719,3 @@ function renderCrossSectionMap() {
     });
   });
 }
-

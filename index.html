@@ -8,7 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <!-- Segregated Production Stylesheets -->
   <link rel="stylesheet" href="./src/styles/tokens.css" />
   <link rel="stylesheet" href="./src/styles/components.css" />
@@ -21,32 +21,44 @@
   <!-- Floating 2D Score Popups Layer -->
   <div id="popup-layer" class="pointer-events-none fixed inset-0 overflow-hidden z-20"></div>
 
-  <!-- 1st-Time Checkpoint Hit Clean Floating Typography -->
+  <!-- 1st-Time Checkpoint Hit Unified Arcade Notification -->
   <div id="checkpoint-toast-banner" class="fixed top-20 left-1/2 -translate-x-1/2 z-35 pointer-events-none hidden text-center">
-    <div class="flex flex-col items-center justify-center">
-      <div class="flex items-center gap-2.5 mb-0.5">
-        <span class="text-2xl sm:text-3xl drop-shadow">🚩</span>
-        <span id="checkpoint-toast-title" class="font-display font-black text-2xl sm:text-4xl tracking-wider uppercase text-amber-300" style="-webkit-text-stroke: 1.8px #082f49; text-shadow: 0 4px 0 #082f49, 0 8px 20px rgba(0,0,0,0.85);">
-          CHECKPOINT SAVED
+    <div class="flex flex-col items-center justify-center gap-1.5">
+      <div class="arcade-alert arcade-alert--lg arcade-alert--achievement">
+        <span id="checkpoint-toast-title" class="arcade-alert__text" data-text="CHECKPOINT SAVED">
+          <span class="arcade-alert__extrude" aria-hidden="true">CHECKPOINT SAVED</span>
+          <span class="arcade-alert__face">CHECKPOINT SAVED</span>
         </span>
       </div>
-      <div id="checkpoint-toast-sub" class="font-mono-num text-[11px] sm:text-xs font-bold uppercase tracking-[0.20em] text-cyan-200" style="text-shadow: 0 2px 0 #020617, 0 4px 12px rgba(0,0,0,0.9);">
-        Press [Enter] Anytime on Wipeout to Revive Here
+      <div class="arcade-alert arcade-alert--xs arcade-alert--score">
+        <span id="checkpoint-toast-sub" class="arcade-alert__text" data-text="PRESS [ENTER] ON WIPEOUT TO REVIVE HERE">
+          <span class="arcade-alert__extrude" aria-hidden="true">PRESS [ENTER] ON WIPEOUT TO REVIVE HERE</span>
+          <span class="arcade-alert__face">PRESS [ENTER] ON WIPEOUT TO REVIVE HERE</span>
+        </span>
       </div>
     </div>
   </div>
 
-  <!-- Automated Hoop Transition Iris Wipe & Independent Stage Typography Overlay -->
+  <!-- Automated Hoop Transition Iris Wipe & Unified Arcade Stage Notification -->
   <div id="iris-transition-overlay" class="flex items-center justify-center">
-    <div id="iris-stage-banner" class="opacity-0 scale-90 transition-all duration-300 text-center" style="transform: rotate(-1.5deg);">
-      <div id="iris-stage-overline" class="font-mono-num text-xs sm:text-sm font-extrabold uppercase tracking-[0.26em] text-amber-300 mb-1.5" style="text-shadow: 0 3px 0 #020617, 0 0 18px rgba(251,191,36,0.8);">
-        PORTAL REALM WARP • +600 PTS
+    <div id="iris-stage-banner" class="opacity-0 scale-90 transition-all duration-300 text-center flex flex-col items-center gap-2" style="transform: rotate(-1.5deg);">
+      <div class="arcade-alert arcade-alert--xs arcade-alert--score">
+        <span id="iris-stage-overline" class="arcade-alert__text" data-text="PORTAL REALM WARP +600 PTS">
+          <span class="arcade-alert__extrude" aria-hidden="true">PORTAL REALM WARP +600 PTS</span>
+          <span class="arcade-alert__face">PORTAL REALM WARP +600 PTS</span>
+        </span>
       </div>
-      <div id="iris-stage-title" class="font-display font-black text-4xl sm:text-6xl tracking-tight text-white" style="-webkit-text-stroke: 2px #064e3b; text-shadow: 0 5px 0 #022c22, 0 12px 28px rgba(0,0,0,0.9);">
-        ☁️ Sky Gardens
+      <div class="arcade-alert arcade-alert--xl arcade-alert--achievement">
+        <span id="iris-stage-title" class="arcade-alert__text" data-text="SKY GARDENS">
+          <span class="arcade-alert__extrude" aria-hidden="true">SKY GARDENS</span>
+          <span class="arcade-alert__face">SKY GARDENS</span>
+        </span>
       </div>
-      <div id="iris-stage-sub" class="font-sans text-sm sm:text-base font-bold text-emerald-300 mt-2 tracking-wide" style="text-shadow: 0 2px 0 #020617, 0 6px 14px rgba(0,0,0,0.9);">
-        Entering Next Realm...
+      <div class="arcade-alert arcade-alert--xs arcade-alert--achievement">
+        <span id="iris-stage-sub" class="arcade-alert__text" data-text="ENTERING NEXT REALM...">
+          <span class="arcade-alert__extrude" aria-hidden="true">ENTERING NEXT REALM...</span>
+          <span class="arcade-alert__face">ENTERING NEXT REALM...</span>
+        </span>
       </div>
     </div>
   </div>
@@ -127,10 +139,10 @@
       </nav>
     </div>
 
-    <!-- 1B. HERO SECTION: Angled Axis Upper-Left Title Lockup (Preserves Full 3D Diorama Preview) -->
+    <!-- 1B. HERO LOGO LOCKUP (Upper-Left Side, Preserving Center-Right 3D Frog Preview) -->
     <div class="relative z-10 max-w-7xl w-full mx-auto mt-2 sm:mt-4 mb-auto grid grid-cols-1 lg:grid-cols-12 items-start pointer-events-none">
-      <div class="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
-        <div class="hero-axis-lockup inline-flex flex-col items-center lg:items-start">
+      <div class="lg:col-span-6 flex flex-col items-start text-left">
+        <div class="hero-axis-lockup inline-flex flex-col items-start">
           <div class="relative flex items-center gap-3 mb-0.5 lg:ml-2">
             <span class="px-2.5 py-0.5 rounded-md bg-amber-400/20 border border-amber-300/50 font-mono-num text-[10px] sm:text-xs font-extrabold uppercase tracking-[0.25em] text-amber-200 shadow">
               3D Voxel Action
@@ -142,7 +154,7 @@
           </div>
           <h1 class="logo-word-froggit m-0">FROGGIT</h1>
 
-          <div class="mt-3 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+          <div class="mt-3 flex flex-wrap items-center justify-start gap-3">
             <span class="hero-ribbon-tagline text-xs sm:text-sm">
               THE FROG THAT EATS BACK
             </span>
@@ -152,76 +164,63 @@
           </div>
         </div>
       </div>
-      <div class="hidden lg:block lg:col-span-5"></div>
+      <div class="hidden lg:block lg:col-span-6"></div>
     </div>
 
-    <!-- 1C. BOTTOM DOCKED CONSOLE: Player Handle + Primary Play CTA + Integrated Controls Bar -->
-    <div class="relative z-10 max-w-3xl w-full mx-auto">
-      <div class="landing-console-dock px-5 pt-4 pb-3 sm:px-7 sm:pt-5 sm:pb-3.5">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-center">
-          <div class="md:col-span-7">
-            <label for="input-player-name" class="block typo-overline text-slate-200 mb-2">
-              Player Handle
-            </label>
-            <div class="flex items-center gap-2.5">
-              <input
-                id="input-player-name"
-                type="text"
-                maxlength="16"
-                autocomplete="off"
-                spellcheck="false"
-                placeholder="Enter your handle"
-                class="ui-input w-full h-11 px-3.5 font-mono-num text-sm font-medium"
-              />
-              <button
-                id="btn-random-name"
-                type="button"
-                class="ui-btn-secondary w-11 h-11 shrink-0 flex items-center justify-center"
-                title="Generate Random Handle"
-                aria-label="Generate Random Handle"
-              >
-                <svg class="w-5 h-5 text-slate-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"></circle>
-                  <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor"></circle>
-                  <circle cx="12" cy="12" r="1.2" fill="currentColor"></circle>
-                  <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor"></circle>
-                  <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"></circle>
-                </svg>
-              </button>
-            </div>
-          </div>
+    <!-- 1C. BOTTOM-LEFT START BUTTON & ALLIES DOCK (Anchored Bottom-Left, Fitted Strictly to START Text Span Only) -->
+    <div class="relative z-10 max-w-7xl w-full mx-auto mt-auto pt-2 flex items-end justify-start pointer-events-none">
+      <div
+        id="landing-start-dock"
+        class="pointer-events-auto inline-grid gap-2 items-stretch"
+        style="grid-template-columns: minmax(0, max-content); width: fit-content;"
+      >
+        <!-- Translucent Glassmorphic START Button Hugging Only the Span of START Text -->
+        <button
+          id="btn-start-play"
+          type="button"
+          class="glass-start-box w-max px-4 sm:px-5 py-2 sm:py-2.5 font-black text-3xl sm:text-4xl lg:text-5xl leading-none uppercase tracking-[0.06em] inline-flex items-center justify-center gap-2.5 sm:gap-3 group"
+        >
+          <svg class="w-6 h-6 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-emerald-300 fill-current drop-shadow-[0_3px_0_#064e3b] transition-transform duration-150 group-hover:scale-110 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+            <polygon points="5 3 20 12 5 21 5 3"></polygon>
+          </svg>
+          <span class="leading-none">START</span>
+        </button>
 
-          <div class="md:col-span-5 md:border-l md:border-white/15 md:pl-6 flex flex-col justify-center">
-            <button
-              id="btn-start-play"
-              type="button"
-              class="play-cta-reference w-full h-14 px-6 font-bold text-lg sm:text-xl uppercase tracking-[0.08em] flex items-center justify-center gap-3"
-            >
-              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                <polygon points="6 4 20 12 6 20 6 4"></polygon>
-              </svg>
-              <span>START ADVENTURE</span>
-            </button>
-          </div>
+        <!-- Ally 1: Player Handle Input + Randomize Button Constrained Strictly to START Button Width (Never Overflows) -->
+        <div class="glass-name-box w-full min-w-0 p-1.5 flex items-center gap-1.5 overflow-hidden">
+          <label for="input-player-name" class="sr-only">Player Handle</label>
+          <input
+            id="input-player-name"
+            type="text"
+            size="1"
+            maxlength="16"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="HANDLE"
+            class="w-0 min-w-0 flex-1 h-8 sm:h-9 px-2.5 rounded-lg bg-slate-950/45 border border-white/12 text-white font-mono-num text-[11px] sm:text-xs font-bold tracking-wider focus:outline-none focus:border-emerald-400/65 transition truncate"
+          />
+          <button
+            id="btn-random-name"
+            type="button"
+            class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/8 hover:bg-white/15 border border-white/14 shrink-0 flex items-center justify-center text-slate-200 hover:text-emerald-300 transition"
+            title="Randomize Handle"
+            aria-label="Randomize Handle"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+              <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"></circle>
+              <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor"></circle>
+              <circle cx="12" cy="12" r="1.2" fill="currentColor"></circle>
+              <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor"></circle>
+              <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"></circle>
+            </svg>
+          </button>
         </div>
 
-        <!-- Unlockable Toad Wardrobe / Skin Selector Bar -->
-        <div class="mt-3 pt-2.5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div class="flex items-center gap-1.5 shrink-0">
-            <span class="text-xs">🎨</span>
-            <span class="typo-overline !text-[9.5px] text-slate-300">Tode Skin</span>
-          </div>
-          <div id="landing-skin-selector" class="flex items-center gap-1.5 overflow-x-auto max-w-full pb-0.5"></div>
-        </div>
-
-        <!-- Integrated Cross-Platform Controls Readout (Mobile Touch + Desktop Keyboard + Gamepad) -->
-        <div class="mt-2 pt-2 border-t border-white/8 text-center">
-          <p class="m-0 font-mono-num text-[9.5px] sm:text-[11px] font-medium uppercase tracking-[0.14em] sm:tracking-[0.18em] text-slate-400">
-            <span class="sm:hidden">TOUCH: D-PAD / SWIPE TO HOP <span class="mx-1 text-emerald-400">•</span> TAP / 👅 TO GRAPPLE BUGS &amp; 🪷 POSTS</span>
-            <span class="hidden sm:inline">WASD / ARROWS / 🎮 GAMEPAD TO HOP <span class="mx-1.5 text-emerald-400">•</span> SPACE / CLICK TO GRAPPLE BUGS &amp; 🪷 POSTS</span>
-          </p>
-        </div>
+        <!-- Ally 2: Subtle Attribution Fitted Inside Same Span -->
+        <p class="m-0 w-full min-w-0 truncate font-mono-num text-[10px] text-slate-300/75 tracking-wider text-left">
+          &copy; Made by Mayank-cs50
+        </p>
       </div>
     </div>
   </section>
@@ -653,6 +652,11 @@
               <span>Open Guide</span>
             </button>
           </div>
+
+          <div class="pt-2.5 border-t border-white/8">
+            <div class="typo-item-title mb-1.5">Tode Skin</div>
+            <div id="landing-skin-selector" class="flex flex-wrap items-center gap-1.5"></div>
+          </div>
         </div>
       </div>
 
@@ -732,8 +736,12 @@
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
           </button>
+        </div>
 
-
+        <div class="mt-4 pt-3 border-t border-white/8 text-center">
+          <p class="m-0 font-mono-num text-[11px] text-slate-400/75 tracking-wider">
+            &copy; Made by Mayank-cs50
+          </p>
         </div>
       </div>
     </div>

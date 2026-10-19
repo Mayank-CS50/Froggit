@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — 96-Row Winding Course Topology, Multi-Axis Obstacles & InstancedMesh World Builder
+ * THE FROGGIT — 96-Row Winding Course, Giant Bomb Shell & Cannon Rig, Safe Forward-Only Grapple Posts & InstancedMesh Builder
  * File: src/world/courseBuilder.js
  */
 // =========================================================================
@@ -315,6 +315,125 @@ function createGuardrailSegment(x, zStart, zEnd, railColorHex, baseY = 0) {
   g.add(lowerRod);
 
   return g;
+}
+
+function createSongNoteSprite(noteChar = '♪', colorHex = '#fde047') {
+  const c = document.createElement('canvas');
+  c.width = 96;
+  c.height = 96;
+  const ctx = c.getContext('2d');
+  ctx.font = '900 64px Outfit, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = '#7f1d1d';
+  ctx.strokeText(noteChar, 48, 50);
+  ctx.fillStyle = colorHex;
+  ctx.fillText(noteChar, 48, 50);
+  const tex = new THREE.CanvasTexture(c);
+  tex.encoding = THREE.sRGBEncoding;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+  sp.scale.set(0.62, 0.62, 1);
+  return sp;
+}
+
+// Peaceful Singing Parrot Perched on Guardrail Barricades (Sings & Bobs Without Hurting Tode)
+function createPerchedSingingParrot(x, y, z, side = 1, variant = 0) {
+  const parrotGrp = new THREE.Group();
+  const plumageSets = [
+    { body: 0xef4444, wingA: 0xfacc15, wingB: 0x2563eb, tail: 0xef4444 }, // Scarlet Macaw
+    { body: 0x10b981, wingA: 0xfde047, wingB: 0x06b6d4, tail: 0x059669 }, // Emerald Amazon Parrot
+    { body: 0x38bdf8, wingA: 0xfacc15, wingB: 0x1d4ed8, tail: 0xf59e0b }  // Blue-and-Gold Macaw
+  ];
+  const pal = plumageSets[Math.abs(variant) % plumageSets.length];
+
+  const bodyMat = createVoxelMaterial('frog_skin', pal.body, pal.wingA, { roughness: 0.38 });
+  const wingAMat = createVoxelMaterial('frog_belly', pal.wingA, 0xffffff, { roughness: 0.35 });
+  const wingBMat = createVoxelMaterial('crystal_gem', pal.wingB, pal.wingA, { roughness: 0.35 });
+  const beakMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.28 });
+  const darkBeakMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.32 });
+  const whitePatchMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  const bodyPivot = new THREE.Group();
+  parrotGrp.add(bodyPivot);
+
+  // Plump perched parrot torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.42, 0.30), bodyMat);
+  torso.position.set(0, 0.22, 0);
+  torso.rotation.x = 0.18;
+  torso.castShadow = true;
+  bodyPivot.add(torso);
+
+  // Head + White Macaw Cheek Patches + Curved Hooked Beak + Crest Feathers
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.26, 0.28), bodyMat);
+  head.position.set(0, 0.50, 0.05);
+  bodyPivot.add(head);
+
+  [-0.145, 0.145].forEach((px) => {
+    const patch = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.14, 0.15), whitePatchMat);
+    patch.position.set(px, 0.51, 0.08);
+    bodyPivot.add(patch);
+    const pupil = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.06, 0.06), darkBeakMat);
+    pupil.position.set(px * 1.08, 0.52, 0.10);
+    bodyPivot.add(pupil);
+  });
+
+  const upperBeak = new THREE.Mesh(new THREE.ConeGeometry(0.085, 0.20, 6), beakMat);
+  upperBeak.rotation.x = Math.PI * 0.62;
+  upperBeak.position.set(0, 0.49, 0.25);
+  bodyPivot.add(upperBeak);
+
+  const lowerBeak = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.11), darkBeakMat);
+  lowerBeak.position.set(0, 0.43, 0.20);
+  bodyPivot.add(lowerBeak);
+
+  const crest = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.18, 5), wingAMat);
+  crest.position.set(0, 0.68, 0.02);
+  crest.rotation.x = -0.35;
+  bodyPivot.add(crest);
+
+  // Folded Tri-Color Side Wings that flutter while singing
+  const leftWing = new THREE.Group();
+  leftWing.position.set(-0.18, 0.28, 0.0);
+  const lwA = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.28, 0.22), wingAMat);
+  const lwB = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.16), wingBMat);
+  lwB.position.set(-0.02, -0.08, -0.05);
+  leftWing.add(lwA, lwB);
+  bodyPivot.add(leftWing);
+
+  const rightWing = new THREE.Group();
+  rightWing.position.set(0.18, 0.28, 0.0);
+  const rwA = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.28, 0.22), wingAMat);
+  const rwB = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.16), wingBMat);
+  rwB.position.set(0.02, -0.08, -0.05);
+  rightWing.add(rwA, rwB);
+  bodyPivot.add(rightWing);
+
+  // Long Macaw Tail Feathers hanging down behind the rail
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.48, 0.06), bodyMat);
+  tail.position.set(0, -0.06, -0.18);
+  tail.rotation.x = 0.32;
+  bodyPivot.add(tail);
+
+  // Floating Musical Note Sprite above the singing parrot
+  const noteSprite = createSongNoteSprite(variant % 2 === 0 ? '♪' : '♫', variant % 2 === 0 ? '#fde047' : '#67e8f9');
+  noteSprite.position.set(0, 0.98, 0.12);
+  parrotGrp.add(noteSprite);
+
+  parrotGrp.position.set(x, y, z);
+  parrotGrp.rotation.y = side < 0 ? Math.PI * 0.42 : -Math.PI * 0.42;
+
+  animatedProps.push({
+    mesh: bodyPivot,
+    leftWing,
+    rightWing,
+    noteSprite,
+    type: 'singingParrot',
+    baseY: 0,
+    phase: variant * 1.3 + z * 0.2
+  });
+
+  return parrotGrp;
 }
 
 // Pool of 8 Distinct 3D Obstacle Designs with Elevation Support
@@ -685,53 +804,170 @@ function createBouncePad(gx, gz, theme) {
 // -------------------------------------------------------------------------
 // NEW INTERNET-FAVORITE OBSTACLE 1: SIDE BASTION CANNON TURRETS (X-Axis Projectiles)
 // -------------------------------------------------------------------------
+// Giant Multi-Part 3D Bomb Shell Mesh (Nearly 2x Larger Diameter + Burning Fuse + Spark Core)
+function createBombShellMesh() {
+  const bombGrp = new THREE.Group();
+  const shellMat = createVoxelMaterial('stone_brick', 0x111827, 0x334155, {
+    roughness: 0.24,
+    metalness: 0.72,
+    emissive: 0x7c2d12,
+    emissiveIntensity: 0.18
+  });
+  const bandMat = createVoxelMaterial('hazard_stripes', 0xf97316, 0xfacc15, {
+    roughness: 0.30,
+    metalness: 0.45,
+    emissive: 0xea580c,
+    emissiveIntensity: 0.35
+  });
+  const capMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3, metalness: 0.65 });
+  const fuseMat = new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.75 });
+
+  // Heavy 0.62-radius (1.24 world-unit diameter) cast-iron bomb sphere
+  const coreSphere = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 14), shellMat);
+  coreSphere.castShadow = true;
+  bombGrp.add(coreSphere);
+
+  // Glowing magma-orange equatorial band
+  const eqRing = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.075, 8, 20), bandMat);
+  eqRing.rotation.x = Math.PI / 2;
+  bombGrp.add(eqRing);
+
+  // Specular highlight rivet plates on sides
+  const rivetGeo = new THREE.SphereGeometry(0.085, 8, 8);
+  const rivetMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.2, metalness: 0.8 });
+  [[-0.44, 0.32, 0.28], [0.44, 0.32, 0.28], [0, 0.32, -0.52]].forEach(([rx, ry, rz]) => {
+    const rv = new THREE.Mesh(rivetGeo, rivetMat);
+    rv.position.set(rx, ry, rz);
+    bombGrp.add(rv);
+  });
+
+  // Top brass fuse nozzle collar + burning fuse cord
+  const fuseCap = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.25, 0.18, 10), capMat);
+  fuseCap.position.set(0, 0.62, 0);
+  bombGrp.add(fuseCap);
+
+  const fuseCord = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.32, 8), fuseMat);
+  fuseCord.position.set(0.06, 0.82, 0);
+  fuseCord.rotation.z = -0.35;
+  bombGrp.add(fuseCord);
+
+  // Flickering Fuse Spark & Flame Halo
+  const sparkGroup = new THREE.Group();
+  sparkGroup.position.set(0.12, 0.98, 0);
+  const sparkCore = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.19, 0),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  );
+  const sparkHalo = new THREE.Mesh(
+    new THREE.SphereGeometry(0.28, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.82 })
+  );
+  sparkGroup.add(sparkCore, sparkHalo);
+  bombGrp.add(sparkGroup);
+
+  bombGrp.userData.sparkGroup = sparkGroup;
+  bombGrp.userData.coreSphere = coreSphere;
+  return bombGrp;
+}
+
 function createCannonTurret(gz, side, theme, idx = 0) {
   const prof = getRowProfile(gz);
   const edgeCol = side < 0 ? prof.minX : prof.maxX;
-  const mountX = (side < 0 ? prof.minX - 1.65 : prof.maxX + 1.65) * TILE_SIZE;
+  const mountX = (side < 0 ? prof.minX - 1.75 : prof.maxX + 1.75) * TILE_SIZE;
   const baseY = getSurfaceY(edgeCol, gz);
 
   const cannonGrp = new THREE.Group();
   cannonGrp.position.set(mountX, baseY, -gz * TILE_SIZE);
 
-  const pedestalMat = createVoxelMaterial('stone_brick', 0x475569, 0x1e293b, { roughness: 0.65 });
-  const ironMat = createVoxelMaterial('stone_brick', 0x1e293b, 0x0f172a, { roughness: 0.35, metalness: 0.55 });
-  const brassMat = createVoxelMaterial('hazard_stripes', 0xf59e0b, 0xd97706, { roughness: 0.38, metalness: 0.45 });
+  const pedestalMat = createVoxelMaterial('stone_brick', 0x475569, 0x1e293b, { roughness: 0.62 });
+  const carriageMat = createVoxelMaterial('wood_planks', 0x78350f, 0x451a03, { roughness: 0.74 });
+  const ironMat = createVoxelMaterial('stone_brick', 0x1e293b, 0x0f172a, { roughness: 0.28, metalness: 0.64 });
+  const brassMat = createVoxelMaterial('hazard_stripes', 0xf59e0b, 0xfef08a, { roughness: 0.32, metalness: 0.55 });
 
-  const baseBlock = new THREE.Mesh(new THREE.BoxGeometry(1.45, 0.75, 1.45), pedestalMat);
-  baseBlock.position.y = 0.375;
+  // Stepped Fortified Stone Bastion Pedestal + Timber Carriage Cheek Plates
+  const baseBlock = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.78, 1.75), pedestalMat);
+  baseBlock.position.y = 0.39;
   baseBlock.castShadow = true;
   cannonGrp.add(baseBlock);
 
-  const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.40, 1.55, 12), ironMat);
+  const carriage = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.42, 1.24), carriageMat);
+  carriage.position.y = 0.90;
+  carriage.castShadow = true;
+  cannonGrp.add(carriage);
+
+  // Recoiling Heavy Bombard Barrel Pivot Group
+  const barrelPivot = new THREE.Group();
+  const baseBarrelX = side < 0 ? 0.38 : -0.38;
+  barrelPivot.position.set(baseBarrelX, 1.12, 0);
+  cannonGrp.add(barrelPivot);
+
+  const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.60, 1.82, 14), ironMat);
   barrel.rotation.z = side < 0 ? -Math.PI / 2 : Math.PI / 2;
-  barrel.position.set(side < 0 ? 0.35 : -0.35, 0.92, 0);
   barrel.castShadow = true;
-  cannonGrp.add(barrel);
+  barrelPivot.add(barrel);
 
-  const muzzleRing = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.07, 8, 16), brassMat);
+  // Twin Reinforced Brass Barrel Rings + Breech Cascabel Knob
+  [-0.42, 0.38].forEach((rx) => {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.54, 0.07, 8, 16), brassMat);
+    ring.rotation.y = Math.PI / 2;
+    ring.position.set(side < 0 ? rx : -rx, 0, 0);
+    barrelPivot.add(ring);
+  });
+
+  const breechKnob = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 10), brassMat);
+  breechKnob.position.set(side < 0 ? -1.04 : 1.04, 0, 0);
+  barrelPivot.add(breechKnob);
+
+  const muzzleRing = new THREE.Mesh(new THREE.TorusGeometry(0.50, 0.095, 10, 18), brassMat);
   muzzleRing.rotation.y = Math.PI / 2;
-  muzzleRing.position.set(side < 0 ? 1.12 : -1.12, 0.92, 0);
-  cannonGrp.add(muzzleRing);
+  muzzleRing.position.set(side < 0 ? 0.92 : -0.92, 0, 0);
+  barrelPivot.add(muzzleRing);
 
-  // Pre-Strike Laser Sightline across the track row (visible 0.55s before cannon fires)
+  // 3D Muzzle Blast Flash & Expanding Shockwave Ring at Cannon Mouth
+  const muzzleFlashGroup = new THREE.Group();
+  muzzleFlashGroup.position.set(side < 0 ? 1.42 : -1.42, 1.12, 0);
+  const flashCore = new THREE.Mesh(
+    new THREE.SphereGeometry(0.55, 12, 10),
+    new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.92 })
+  );
+  const flashBlastCone = new THREE.Mesh(
+    new THREE.ConeGeometry(0.68, 1.35, 12),
+    new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.78 })
+  );
+  flashBlastCone.rotation.z = side < 0 ? -Math.PI / 2 : Math.PI / 2;
+  flashBlastCone.position.x = side < 0 ? 0.45 : -0.45;
+  const shockRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.62, 0.09, 8, 20),
+    new THREE.MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.88 })
+  );
+  shockRing.rotation.y = Math.PI / 2;
+  muzzleFlashGroup.add(flashCore, flashBlastCone, shockRing);
+  muzzleFlashGroup.visible = false;
+  cannonGrp.add(muzzleFlashGroup);
+
+  // Pre-Strike Laser Sightline across the track row (visible 0.65s before cannon fires)
   const trackSpanW = Math.max(8, (prof.maxX - prof.minX + 3) * TILE_SIZE);
-  const laserGeo = new THREE.BoxGeometry(trackSpanW, 0.08, 0.08);
+  const laserGeo = new THREE.BoxGeometry(trackSpanW, 0.11, 0.11);
   const laserMat = new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.0, depthWrite: false });
   const laserMesh = new THREE.Mesh(laserGeo, laserMat);
-  laserMesh.position.set(side < 0 ? trackSpanW * 0.5 + 1.1 : -trackSpanW * 0.5 - 1.1, 0.88, 0);
+  laserMesh.position.set(side < 0 ? trackSpanW * 0.5 + 1.35 : -trackSpanW * 0.5 - 1.35, 1.10, 0);
   cannonGrp.add(laserMesh);
 
   worldGroup.add(cannonGrp);
   cannonShooters.push({
     group: cannonGrp,
-    barrel,
+    barrel: barrelPivot,
+    baseBarrelX,
+    muzzleFlashGroup,
+    shockRing,
     laserMesh,
     laserMat,
     gz,
     side,
     baseY,
-    muzzleX: mountX + (side < 0 ? 1.15 : -1.15),
+    recoilOffset: 0,
+    flashTimer: 0,
+    muzzleX: mountX + (side < 0 ? 1.38 : -1.38),
     timer: idx * 1.15,
     interval: Math.max(2.1, 3.2 - Math.abs(state.floorLevel) * 0.22)
   });
@@ -923,45 +1159,117 @@ function createRollingSpikedLog(cfg, idx = 0) {
 // -------------------------------------------------------------------------
 // INTERACTIVE TONGUE GRAPPLE TARGETS: GOLDEN FIREFLIES (✨) & GRAPPLE POSTS (🪷)
 // -------------------------------------------------------------------------
-function createInteractiveGrappleTargets(level, theme) {
-  // 1. Grapple Lily-Posts: Tongue-whipping these zips Tode 2-3 rows forward across chasms/traps!
-  const postRows = [14, 37, 54, 69, 83];
-  const postMat = createVoxelMaterial('wood_planks', 0x059669, 0x10b981, { roughness: 0.45 });
-  const lotusMat = createVoxelMaterial('crystal_gem', 0xf472b6, 0xfbcfe8, { roughness: 0.28, emissive: 0xdb2777, emissiveIntensity: 0.32 });
+// Helper to guarantee a Grapple Lily-Post tile is 100% safe and NEVER overlaps with
+// sweepers, push-blocks, cannon rows, pendulum axes, thwomps, rolling logs, ferries, or static hurdles!
+function isSafeGrapplePostTile(gx, gz) {
+  const k = tileKey(gx, gz);
+  if (!validRoadwayTiles.has(k) || blockedTiles.has(k)) return false;
+  // Avoid rotating sweeper rows and their 1-row sweep radius
+  if (sweeperBeams.some((sw) => Math.abs(sw.gz - gz) <= 1)) return false;
+  // Avoid sliding push-block rows
+  if (pushBlocks.some((pb) => pb.gz === gz)) return false;
+  // Avoid side cannon fire lines
+  if (cannonShooters.some((cn) => cn.gz === gz)) return false;
+  // Avoid overhead swinging pendulum battle-axe rows
+  if (pendulumAxes.some((ax) => ax.gz === gz)) return false;
+  // Avoid vertical thwomp crusher tiles
+  if (crusherBlocks.some((cr) => cr.gz === gz && Math.abs(cr.gx - gx) <= 1)) return false;
+  // Avoid spring bounce pads
+  if (bouncePads.some((bp) => bp.gz === gz && bp.gx === gx)) return false;
+  // Avoid moving ferry chasm rows
+  if (movingPlatforms.some((mp) => mp.gz === gz)) return false;
+  // Avoid rolling spiked timber log lanes & their runout zones
+  if (rollingLogs.some((rl) => {
+    const minLogZ = Math.min(rl.startGz, rl.endGz) - 1;
+    const maxLogZ = Math.max(rl.startGz, rl.endGz) + 1;
+    return gz >= minLogZ && gz <= maxLogZ && Math.abs(gx - rl.gx) <= 1;
+  })) return false;
+  return true;
+}
 
-  postRows.forEach((gz) => {
-    const destGz = gz + 1;
-    const cCol = getTrackCenterCol(level, destGz);
-    if (!validRoadwayTiles.has(tileKey(cCol, destGz)) || blockedTiles.has(tileKey(cCol, destGz))) return;
-    const baseY = getSurfaceY(cCol, destGz);
+function findSafeGrappleTileNearRow(level, preferredGz, laneBias = 0) {
+  const rowOffsets = [0, 1, -1, 2, -2, 3];
+  for (const ro of rowOffsets) {
+    const gz = preferredGz + ro;
+    if (gz <= 3 || gz >= ROADWAY_LENGTH - 5) continue;
+    const cCol = getTrackCenterCol(level, gz);
+    const colOffsets = laneBias === 0
+      ? [0, -1, 1, -2, 2]
+      : (laneBias < 0 ? [-1, -2, 0, 1, 2] : [1, 2, 0, -1, -2]);
+    for (const co of colOffsets) {
+      const gx = cCol + co;
+      if (isSafeGrapplePostTile(gx, gz)) {
+        return { gx, gz };
+      }
+    }
+  }
+  return null;
+}
+
+function createInteractiveGrappleTargets(level, theme) {
+  // 1. Grapple Lily-Posts: Distributed across 10 verified hazard-free safe landing zones!
+  //    Once Tode reaches or gets past a grapple post's row, it deactivates and cannot be used behind Tode.
+  const desiredGrappleZones = [
+    { gz: 6,  bias: 0 },
+    { gz: 11, bias: -1 },
+    { gz: 19, bias: 1 },
+    { gz: 25, bias: 0 },
+    { gz: 32, bias: -1 },
+    { gz: 47, bias: 1 },
+    { gz: 55, bias: 0 },
+    { gz: 63, bias: -1 },
+    { gz: 75, bias: 1 },
+    { gz: 80, bias: 0 }
+  ];
+  const postMat = createVoxelMaterial('wood_planks', 0x059669, 0x10b981, { roughness: 0.42 });
+  const activeLotusMat = createVoxelMaterial('crystal_gem', 0xf472b6, 0xfbcfe8, { roughness: 0.25, emissive: 0xdb2777, emissiveIntensity: 0.36 });
+  const passedLotusMat = createVoxelMaterial('stone_brick', 0x475569, 0x334155, { roughness: 0.68, emissive: 0x0f172a, emissiveIntensity: 0.05 });
+
+  const usedRows = new Set();
+  desiredGrappleZones.forEach((zone, idx) => {
+    const safeTile = findSafeGrappleTileNearRow(level, zone.gz, zone.bias);
+    if (!safeTile || usedRows.has(safeTile.gz)) return;
+    usedRows.add(safeTile.gz);
+
+    const { gx, gz: destGz } = safeTile;
+    const baseY = getSurfaceY(gx, destGz);
 
     const postGrp = new THREE.Group();
+    const padBase = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.62, 0.14, 12), postMat);
+    padBase.position.y = 0.07;
+    postGrp.add(padBase);
+
     const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.85, 10), postMat);
-    stem.position.y = 0.425;
+    stem.position.y = 0.44;
     postGrp.add(stem);
 
-    const lotusBulb = new THREE.Mesh(new THREE.OctahedronGeometry(0.42, 1), lotusMat);
-    lotusBulb.position.y = 1.02;
+    const lotusBulb = new THREE.Mesh(new THREE.OctahedronGeometry(0.44, 1), activeLotusMat);
+    lotusBulb.position.y = 1.05;
     postGrp.add(lotusBulb);
 
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.52, 0.05, 8, 18),
+      new THREE.TorusGeometry(0.54, 0.055, 8, 18),
       new THREE.MeshBasicMaterial({ color: 0xfef08a })
     );
     ring.rotation.x = Math.PI / 2;
-    ring.position.y = 1.02;
+    ring.position.y = 1.05;
     postGrp.add(ring);
 
-    postGrp.position.set(cCol * TILE_SIZE, baseY, -destGz * TILE_SIZE);
+    postGrp.position.set(gx * TILE_SIZE, baseY, -destGz * TILE_SIZE);
     worldGroup.add(postGrp);
-    animatedProps.push({ mesh: lotusBulb, type: 'spinBob', baseY: 1.02, phase: destGz * 0.5 });
+    animatedProps.push({ mesh: lotusBulb, type: 'spinBob', baseY: 1.05, phase: destGz * 0.5 + idx });
 
     grappleTargets.push({
       kind: 'grapple_post',
       mesh: postGrp,
-      gx: cCol,
+      lotusBulb,
+      ringMesh: ring,
+      activeLotusMat,
+      passedLotusMat,
+      gx,
       gz: destGz,
       baseY,
+      passed: false,
       alive: true,
       latched: false
     });
@@ -1643,11 +1951,17 @@ function buildRoadwayWorld() {
         fencedEdges.add(`${gx},${gz},L`);
         const railX = wx - 0.92;
         worldGroup.add(createGuardrailSegment(railX, wz + TILE_SIZE * 0.5, wz - TILE_SIZE * 0.5, floorCfg.railColor, elevY));
+        if (floorCfg.theme !== 'ocean' && gz > 2 && gz < ROADWAY_LENGTH - 4 && (gz % (floorCfg.theme === 'heaven' ? 4 : 7) === 2)) {
+          worldGroup.add(createPerchedSingingParrot(railX, elevY + 1.16, wz + TILE_SIZE * 0.5, -1, gz));
+        }
       }
       if (cell.fencedR) {
         fencedEdges.add(`${gx},${gz},R`);
         const railX = wx + 0.92;
         worldGroup.add(createGuardrailSegment(railX, wz + TILE_SIZE * 0.5, wz - TILE_SIZE * 0.5, floorCfg.railColor, elevY));
+        if (floorCfg.theme !== 'ocean' && gz > 2 && gz < ROADWAY_LENGTH - 4 && (gz % (floorCfg.theme === 'heaven' ? 4 : 7) === 0)) {
+          worldGroup.add(createPerchedSingingParrot(railX, elevY + 1.16, wz + TILE_SIZE * 0.5, 1, gz + 1));
+        }
       }
     }
   }
@@ -1735,3 +2049,159 @@ function buildRoadwayWorld() {
   createFinishShrineAndPortals();
 }
 
+// Dedicated Victory Celebration Sanctuary Location (Replaces Portal Hoops & Course so Tode Dances Unobstructed!)
+function buildVictoryCelebrationSanctuary() {
+  while (worldGroup.children.length > 0) {
+    worldGroup.remove(worldGroup.children[0]);
+  }
+  while (beesGroup.children.length > 0) {
+    beesGroup.remove(beesGroup.children[0]);
+  }
+  bees.length = 0;
+  validRoadwayTiles.clear();
+  blockedTiles.clear();
+  tileElevationMap.clear();
+  obstacleMetaMap.clear();
+  fencedEdges.clear();
+  animatedProps.length = 0;
+  sweeperBeams.length = 0;
+  movingPlatforms.length = 0;
+  pushBlocks.length = 0;
+  bouncePads.length = 0;
+  cannonShooters.length = 0;
+  cannonProjectiles.length = 0;
+  pendulumAxes.length = 0;
+  crusherBlocks.length = 0;
+  rollingLogs.length = 0;
+  grappleTargets.length = 0;
+  scrollingWaterTextures.length = 0;
+  scrollingFloorTextures.length = 0;
+
+  // Place Tode at the center (0, 0, 0) of the Royal Lotus Victory Sanctuary
+  state.gridX = 0;
+  state.gridZ = 0;
+  validRoadwayTiles.add('0,0');
+  tileElevationMap.set('0,0', 0);
+  todeRoot.position.set(0, 0, 0);
+
+  // Warm Golden-Hour Celestial Oasis Sky & Lighting
+  scene.background = createSkyDomeTexture('#1e3a8a', '#38bdf8', '#fde68a', 'heaven');
+  scene.fog = new THREE.FogExp2(0x93c5fd, 0.0042);
+  ambientLight.color.setHex(0xffffff);
+  ambientLight.groundColor.setHex(0x334155);
+  ambientLight.intensity = 0.96;
+  dirLight.color.setHex(0xfff4d2);
+  dirLight.intensity = 1.32;
+  dirLight.position.set(22, 34, 20);
+
+  const goldMat = createVoxelMaterial('crystal_gem', 0xfacc15, 0xfef08a, { roughness: 0.25, metalness: 0.45, emissive: 0xf59e0b, emissiveIntensity: 0.25 });
+  const emeraldMat = createVoxelMaterial('grass_top', 0x10b981, 0x6ee7b7, { roughness: 0.34 });
+  const marbleMat = createVoxelMaterial('stone_brick', 0xf8fafc, 0xe2e8f0, { roughness: 0.42 });
+  const darkStoneMat = createVoxelMaterial('stone_brick', 0x334155, 0x1e293b, { roughness: 0.55 });
+  const woodMat = createVoxelMaterial('wood_planks', 0x78350f, 0x451a03, { roughness: 0.78 });
+  const sakuraMat = createVoxelMaterial('frog_belly', 0xf472b6, 0xfbcfe8, { roughness: 0.48, emissive: 0xdb2777, emissiveIntensity: 0.12 });
+
+  // 1. Central Sculpted Octagonal Victory Dance Stage at (0, 0, 0) — Zero vertical obstructions near Tode!
+  const stageTop = new THREE.Mesh(new THREE.CylinderGeometry(4.4, 4.8, 0.56, 16), emeraldMat);
+  stageTop.position.set(0, -0.28, 0);
+  stageTop.receiveShadow = true;
+  worldGroup.add(stageTop);
+
+  const stageRim = new THREE.Mesh(new THREE.TorusGeometry(4.45, 0.16, 10, 32), goldMat);
+  stageRim.rotation.x = Math.PI / 2;
+  stageRim.position.set(0, -0.02, 0);
+  worldGroup.add(stageRim);
+
+  const innerRing = new THREE.Mesh(new THREE.RingGeometry(1.85, 2.15, 32), new THREE.MeshBasicMaterial({ color: 0xfef08a, side: THREE.DoubleSide }));
+  innerRing.rotation.x = -Math.PI / 2;
+  innerRing.position.set(0, 0.015, 0);
+  worldGroup.add(innerRing);
+
+  const stagePlinth = new THREE.Mesh(new THREE.CylinderGeometry(5.2, 6.0, 1.4, 16), marbleMat);
+  stagePlinth.position.set(0, -1.20, 0);
+  stagePlinth.receiveShadow = true;
+  worldGroup.add(stagePlinth);
+
+  // 2. Tranquil Crystal Sanctuary Lagoon surrounding the Victory Stage
+  const lagoonMat = createVoxelMaterial('water_flow', 0x0284c7, 0x38bdf8, {
+    roughness: 0.15,
+    transparent: true,
+    opacity: 0.84,
+    scrollFloor: true,
+    scrollFloorVx: 0.03,
+    scrollFloorVy: 0.06,
+    repeatX: 5,
+    repeatY: 5
+  });
+  const lagoonPlane = new THREE.Mesh(new THREE.PlaneGeometry(180, 180), lagoonMat);
+  lagoonPlane.rotation.x = -Math.PI / 2;
+  lagoonPlane.position.set(0, -1.35, 0);
+  worldGroup.add(lagoonPlane);
+
+  // 3. Ring of 6 Low Golden Balustrade Perches with Singing Parrots at r = 5.0
+  for (let i = 0; i < 6; i++) {
+    const ang = (i * Math.PI * 2) / 6;
+    const px = Math.cos(ang) * 4.85;
+    const pz = Math.sin(ang) * 4.85;
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.72, 10), goldMat);
+    post.position.set(px, 0.36, pz);
+    post.castShadow = true;
+    worldGroup.add(post);
+
+    const parrot = createPerchedSingingParrot(px, 0.72, pz, 1, i);
+    parrot.rotation.y = Math.atan2(-px, -pz);
+    worldGroup.add(parrot);
+  }
+
+  // 4. Outer Amphitheater Ring of Floating Lotus Lanterns (r = 9.2) & Grand Sanctuary Isles (r = 15.5)
+  //    Positioned well outside the camera's 6.8-unit 360° orbit so the view is 100% clear!
+  for (let i = 0; i < 8; i++) {
+    const ang = (i * Math.PI * 2) / 8;
+    const lx = Math.cos(ang) * 9.2;
+    const lz = Math.sin(ang) * 9.2;
+    const pad = new THREE.Group();
+    const leaf = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.12, 14), emeraldMat);
+    pad.add(leaf);
+    const lotus = new THREE.Mesh(new THREE.OctahedronGeometry(0.38, 1), sakuraMat);
+    lotus.position.y = 0.32;
+    pad.add(lotus);
+    pad.position.set(lx, -1.25, lz);
+    worldGroup.add(pad);
+    animatedProps.push({ mesh: lotus, type: 'spinBob', baseY: 0.32, phase: i * 0.8 });
+
+    // Outer Triumphal Sanctuary Islands with Marble Columns & Blossom Trees at r = 15.5
+    const ix = Math.cos(ang) * 15.5;
+    const iz = Math.sin(ang) * 15.5;
+    const isle = new THREE.Group();
+    const rock = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.1, 2.4, 10), darkStoneMat);
+    rock.position.y = -0.9;
+    isle.add(rock);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(2.75, 2.6, 0.42, 10), emeraldMat);
+    cap.position.y = 0.45;
+    isle.add(cap);
+
+    if (i % 2 === 0) {
+      // Marble Triumphal Column + Torch Brazier
+      const col = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.52, 3.6, 12), marbleMat);
+      col.position.y = 2.4;
+      col.castShadow = true;
+      isle.add(col);
+      const colCap = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.32, 1.25), goldMat);
+      colCap.position.y = 4.3;
+      isle.add(colCap);
+      isle.add(createTorchBrazier(0, 4.45, 0, false));
+    } else {
+      // Blossoming Sakura & Gold Spirit Tree
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.38, 1.8, 8), woodMat);
+      trunk.position.y = 1.5;
+      isle.add(trunk);
+      const canopyA = new THREE.Mesh(new THREE.SphereGeometry(1.45, 14, 12), i % 4 === 1 ? sakuraMat : goldMat);
+      canopyA.scale.set(1.2, 0.85, 1.2);
+      canopyA.position.set(0, 2.8, 0);
+      isle.add(canopyA);
+    }
+
+    isle.position.set(ix, 0, iz);
+    worldGroup.add(isle);
+  }
+}

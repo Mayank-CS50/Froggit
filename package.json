@@ -21,6 +21,6 @@
   "author": "THE FROGGIT Team",
   "license": "MIT",
   "devDependencies": {
-    "vite": "^8.3.4"
+    "vite": "^5.4.0"
   }
 }

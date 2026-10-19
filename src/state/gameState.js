@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Core Constants, 7-Realm Configs, Wardrobe Skins & State Store
+ * THE FROGGIT — Game Constants, 7-Realm Floors, 5 Unlockable Skins & State Store
  * File: src/state/gameState.js
  */
 // =========================================================================
@@ -316,4 +316,3 @@ function renderLeaderboardUI() {
     `).join('');
   }
 }
-

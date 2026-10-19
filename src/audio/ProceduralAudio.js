@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — 25-Slot Custom Audio Registry & Web Audio Synthesizer
+ * THE FROGGIT — 25-Slot Custom Audio Hook Registry & Web Audio Synthesizer
  * File: src/audio/ProceduralAudio.js
  */
 // =========================================================================
@@ -488,4 +488,3 @@ class ProceduralAudio {
 
 const audio = new ProceduralAudio();
 window.froggitAudio = audio;
-

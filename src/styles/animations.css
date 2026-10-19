@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Hero Lockup, 300% Floating Callouts, Safe-Area & Animations
+ * THE FROGGIT — Hero Lockup, Diverse Arcade Callout Styles (Death/Bug/Combo/Obstacle/Bomb), Safe-Area & Animations
  * File: src/styles/animations.css
  */
 /* =========================================================================
@@ -31,31 +31,44 @@
   filter: drop-shadow(0 6px 0 #0b1726) drop-shadow(0 18px 34px rgba(2, 8, 20, 0.62));
 }
 
-.landing-console-dock {
-  background: linear-gradient(180deg, rgba(13, 22, 35, 0.88) 0%, rgba(9, 15, 26, 0.94) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
-  box-shadow: 0 24px 54px rgba(2, 6, 17, 0.62), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+.glass-start-box {
+  font-family: var(--font-display);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.26) 0%, rgba(15, 23, 42, 0.48) 100%);
+  backdrop-filter: blur(20px) saturate(155%);
+  -webkit-backdrop-filter: blur(20px) saturate(155%);
+  color: #f8fafc;
+  border: 2px solid rgba(110, 231, 183, 0.55);
+  border-radius: 24px;
+  box-shadow:
+    0 8px 0 rgba(4, 47, 36, 0.78),
+    0 24px 52px rgba(2, 6, 17, 0.55),
+    0 2px 0 rgba(255, 255, 255, 0.28) inset;
+  text-shadow: 0 5px 0 #0b1726, 0 12px 26px rgba(2, 8, 20, 0.65);
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+}
+.glass-start-box:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.38) 0%, rgba(15, 23, 42, 0.58) 100%);
+  border-color: rgba(167, 243, 208, 0.88);
+  transform: translateY(-3px) scale(1.015);
+  box-shadow:
+    0 10px 0 rgba(4, 47, 36, 0.85),
+    0 28px 60px rgba(16, 185, 129, 0.34),
+    0 2px 0 rgba(255, 255, 255, 0.38) inset;
+}
+.glass-start-box:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 3px 0 rgba(4, 47, 36, 0.85),
+    0 12px 24px rgba(16, 185, 129, 0.22);
 }
 
-.play-cta-reference {
-  font-family: var(--font-display);
-  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
-  color: #032015;
-  border: 1.5px solid #a7f3d0;
-  border-radius: 12px;
-  box-shadow: 0 4px 0 #047857, 0 10px 26px rgba(16, 185, 129, 0.30), 0 1px 0 rgba(255, 255, 255, 0.40) inset;
-  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
-}
-.play-cta-reference:hover {
-  filter: brightness(1.05);
-  box-shadow: 0 4px 0 #047857, 0 14px 32px rgba(52, 211, 153, 0.42), 0 1px 0 rgba(255, 255, 255, 0.50) inset;
-}
-.play-cta-reference:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #047857, 0 6px 14px rgba(52, 211, 153, 0.22);
+.glass-name-box {
+  background: rgba(11, 18, 29, 0.42);
+  backdrop-filter: blur(16px) saturate(135%);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(2, 6, 17, 0.36), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
 }
 
 .landing-vignette {
@@ -132,84 +145,322 @@
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.55));
   animation: emojiSurpriseBurst 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-@keyframes floatAboveFrogHead {
+/* =========================================================================
+   UNIFIED REUSABLE ARCADE GAMEPLAY ALERT & NOTIFICATION COMPONENT
+   - Font: Bungee chunky arcade display font
+   - Fill: Golden-yellow to vibrant orange vertical gradient
+   - Outline: Thick dark-red stroke (#650914 / #450a0a)
+   - 3D Extrusion: Deep stacked crimson-maroon 3D block layers
+   - Shadow: Soft ambient drop shadow for readability over any 3D biome
+   - Animations: Pop-in, impact overshoot/shake, and smooth fade-out
+   ========================================================================= */
+@keyframes arcadeAlertPopImpactFade {
   0% {
     opacity: 0;
-    transform: translate(-50%, -10%) scale(0.45);
+    transform: translate(-50%, 6%) scale(0.32) rotate(-4deg);
   }
-  16% {
+  14% {
     opacity: 1;
-    transform: translate(-50%, -105%) scale(1.16);
+    transform: translate(-50%, -95%) scale(1.24) rotate(2.5deg);
   }
-  32% {
+  24% {
     opacity: 1;
-    transform: translate(-50%, -115%) scale(1.0);
+    transform: translate(-50%, -102%) scale(0.95) rotate(-1.5deg);
   }
-  80% {
+  34% {
     opacity: 1;
-    transform: translate(-50%, -135%) scale(1.0);
+    transform: translate(-50%, -110%) scale(1.04) rotate(0deg);
+  }
+  76% {
+    opacity: 1;
+    transform: translate(-50%, -132%) scale(1.0) rotate(0deg);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -165%) scale(0.90);
+    transform: translate(-50%, -162%) scale(0.86) rotate(0deg);
   }
 }
+
+@keyframes checkpointBannerPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -26px) scale(0.38) rotate(-4deg);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, 4px) scale(1.20) rotate(2deg);
+  }
+  26% {
+    opacity: 1;
+    transform: translate(-50%, -2px) scale(0.96) rotate(-1.5deg);
+  }
+  36% {
+    opacity: 1;
+    transform: translate(-50%, 0px) scale(1.02) rotate(-1deg);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0px) scale(1.0) rotate(-1deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -22px) scale(0.86) rotate(-1deg);
+  }
+}
+
+.animate-checkpoint-banner {
+  animation: checkpointBannerPop 2.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.arcade-alert {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-arcade-alert);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+  line-height: 1.08;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  padding: 0.08em 0.18em;
+  isolation: isolate;
+  /* Default Warm Sunlit Honey-Gold & Deep Obsidian-Espresso Contrast Palette */
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #fffbeb 22%, #fde68a 48%, #fbbf24 76%, #f59e0b 100%);
+  --alert-outline: #090f1d;
+  --alert-extrude-1: #78350f;
+  --alert-extrude-2: #451a03;
+  --alert-extrude-3: #0f172a;
+  --alert-glow: rgba(251, 191, 36, 0.58);
+}
+
+/* Keyframe Diversity for Distinct Callout Shapes & Motions */
+@keyframes arcadeAlertBugPop {
+  0%   { opacity: 0; transform: translate(-50%, 10%) scale(0.35, 0.65) rotate(6deg); }
+  16%  { opacity: 1; transform: translate(-50%, -98%) scale(1.24, 0.88) rotate(-3deg); }
+  28%  { opacity: 1; transform: translate(-50%, -108%) scale(0.94, 1.10) rotate(2.5deg); }
+  42%  { opacity: 1; transform: translate(-50%, -116%) scale(1.02, 1.0) rotate(2deg); }
+  78%  { opacity: 1; transform: translate(-50%, -138%) scale(1.0) rotate(2deg); }
+  100% { opacity: 0; transform: translate(-50%, -168%) scale(0.84) rotate(0deg); }
+}
+
+@keyframes arcadeAlertComboPulse {
+  0%   { opacity: 0; transform: translate(-50%, 8%) skewX(-12deg) rotate(-5deg) scale(0.30); }
+  14%  { opacity: 1; transform: translate(-50%, -102%) skewX(-10deg) rotate(-2.5deg) scale(1.34); }
+  24%  { opacity: 1; transform: translate(-50%, -108%) skewX(-10deg) rotate(-1deg) scale(0.94); }
+  36%  { opacity: 1; transform: translate(-50%, -118%) skewX(-10deg) rotate(-2.5deg) scale(1.16); }
+  50%  { opacity: 1; transform: translate(-50%, -124%) skewX(-10deg) rotate(-2deg) scale(1.02); }
+  80%  { opacity: 1; transform: translate(-50%, -146%) skewX(-10deg) rotate(-2deg) scale(1.0); }
+  100% { opacity: 0; transform: translate(-50%, -178%) skewX(-10deg) rotate(-2deg) scale(0.86); }
+}
+
+@keyframes arcadeAlertObstacleShove {
+  0%   { opacity: 0; transform: translate(-68%, -40%) skewX(-15deg) scaleX(1.25) scaleY(0.45); }
+  14%  { opacity: 1; transform: translate(-38%, -96%) skewX(-14deg) scaleX(1.14) scaleY(1.08); }
+  26%  { opacity: 1; transform: translate(-54%, -104%) skewX(-12deg) scaleX(0.96) scaleY(0.98); }
+  40%  { opacity: 1; transform: translate(-50%, -112%) skewX(-13deg) scaleX(1.06) scaleY(1.0); }
+  78%  { opacity: 1; transform: translate(-50%, -132%) skewX(-13deg) scaleX(1.04) scaleY(1.0); }
+  100% { opacity: 0; transform: translate(-50%, -158%) skewX(-13deg) scale(0.85); }
+}
+
+@keyframes arcadeAlertBombBlast {
+  0%   { opacity: 0; transform: translate(-50%, 0%) scale(0.22) rotate(8deg); }
+  12%  { opacity: 1; transform: translate(-50%, -105%) scale(1.42, 1.28) rotate(-5deg); }
+  20%  { opacity: 1; transform: translate(-46%, -108%) scale(0.92, 1.12) rotate(4deg); }
+  28%  { opacity: 1; transform: translate(-54%, -112%) scale(1.18, 0.96) rotate(-3deg); }
+  38%  { opacity: 1; transform: translate(-50%, -116%) scale(1.08, 1.04) rotate(2.5deg); }
+  78%  { opacity: 1; transform: translate(-50%, -138%) scale(1.04) rotate(2deg); }
+  100% { opacity: 0; transform: translate(-50%, -172%) scale(0.86) rotate(0deg); }
+}
+
+@keyframes arcadeAlertDeathShatter {
+  0%   { opacity: 0; transform: translate(-50%, 15%) scale(0.28) rotate(-8deg); }
+  12%  { opacity: 1; transform: translate(-50%, -96%) scale(1.38) rotate(4deg); }
+  20%  { opacity: 1; transform: translate(-55%, -100%) scale(1.05) rotate(-5deg); }
+  28%  { opacity: 1; transform: translate(-45%, -104%) scale(1.14) rotate(3.5deg); }
+  36%  { opacity: 1; transform: translate(-52%, -108%) scale(1.02) rotate(-3.5deg); }
+  46%  { opacity: 1; transform: translate(-50%, -112%) scale(1.06) rotate(-3deg); }
+  82%  { opacity: 1; transform: translate(-50%, -134%) scale(1.04) rotate(-3deg); }
+  100% { opacity: 0; transform: translate(-50%, -164%) scale(0.88) rotate(-3deg); }
+}
+
+/* Mood Variant 1: Achievements, Checkpoints, Boss Shatter & Realm Warps (Radiant Sunburst Gold & Warm Amber) */
+.arcade-alert--achievement {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #fef9c3 20%, #fde047 46%, #fbbf24 72%, #fb923c 100%);
+  --alert-outline: #070d19;
+  --alert-extrude-1: #92400e;
+  --alert-extrude-2: #451a03;
+  --alert-extrude-3: #090d16;
+  --alert-glow: rgba(250, 204, 21, 0.68);
+}
+
+/* Mood Variant 2: Standard Score Callouts (Warm Ivory-to-Apricot Nectar) */
+.arcade-alert--score {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #fffbeb 24%, #fcd34d 54%, #fb923c 82%, #f97316 100%);
+  --alert-outline: #080e1a;
+  --alert-extrude-1: #7c2d12;
+  --alert-extrude-2: #431407;
+  --alert-extrude-3: #090d16;
+  --alert-glow: rgba(251, 146, 60, 0.58);
+}
+
+/* Mood Variant 3: BUGS EATEN (Lush Biotic Lime-Emerald & Chartreuse Pop, Compact Bouncy Shape) */
+.arcade-alert--bug {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #ecfccb 22%, #bef264 52%, #4ade80 80%, #10b981 100%);
+  --alert-outline: #041f14;
+  --alert-extrude-1: #15803d;
+  --alert-extrude-2: #064e3b;
+  --alert-extrude-3: #021a11;
+  --alert-glow: rgba(74, 222, 128, 0.68);
+  font-size: clamp(1.28rem, 2.9vw, 2.15rem) !important;
+  --arcade-stroke: 6px !important;
+  letter-spacing: 0.025em;
+  animation: arcadeAlertBugPop 1.12s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Mood Variant 4: COMBOS HIT (Electric Cyber-Magenta, Neon-Violet & Gold-Cyan Prism, Italic Skewed Flair) */
+.arcade-alert--combo {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #fef08a 18%, #f472b6 48%, #c084fc 76%, #38bdf8 100%);
+  --alert-outline: #0c0620;
+  --alert-extrude-1: #701a75;
+  --alert-extrude-2: #3b0764;
+  --alert-extrude-3: #090414;
+  --alert-glow: rgba(232, 121, 249, 0.78);
+  font-size: clamp(1.72rem, 4.2vw, 3.25rem) !important;
+  --arcade-stroke: 8px !important;
+  letter-spacing: 0.055em;
+  animation: arcadeAlertComboPulse 1.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Mood Variant 5: HIT BY AN OBSTACLE (Glacier-Cyan & Electric Sky-Steel, Wide Sheared Knockback Shape) */
+.arcade-alert--obstacle,
+.arcade-alert--push {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #e0f2fe 24%, #7dd3fc 54%, #38bdf8 82%, #0284c7 100%);
+  --alert-outline: #041322;
+  --alert-extrude-1: #0369a1;
+  --alert-extrude-2: #0c4a6e;
+  --alert-extrude-3: #040d1a;
+  --alert-glow: rgba(56, 189, 248, 0.68);
+  font-size: clamp(1.16rem, 2.5vw, 1.82rem) !important;
+  --arcade-stroke: 5.5px !important;
+  letter-spacing: 0.045em;
+  animation: arcadeAlertObstacleShove 1.08s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Mood Variant 6: BOMB BLAST (Blazing Solar-Yellow, Magma-Orange & Vermilion Detonation Shape) */
+.arcade-alert--bomb {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #fef08a 20%, #facc15 44%, #f97316 72%, #dc2626 100%);
+  --alert-outline: #140502;
+  --alert-extrude-1: #9a3412;
+  --alert-extrude-2: #450a0a;
+  --alert-extrude-3: #090302;
+  --alert-glow: rgba(249, 115, 22, 0.85);
+  font-size: clamp(1.85rem, 4.5vw, 3.40rem) !important;
+  --arcade-stroke: 8.5px !important;
+  letter-spacing: 0.06em;
+  animation: arcadeAlertBombBlast 1.24s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Mood Variant 7: DEATH / WIPEOUT (Monumental Crimson-Ruby & Bone-White Jagged Shudder Shape) */
+.arcade-alert--death,
+.arcade-alert--danger {
+  --alert-fill: linear-gradient(180deg, #ffffff 0%, #ffe4e6 18%, #fb7185 46%, #e11d48 76%, #9f1239 100%);
+  --alert-outline: #090205;
+  --alert-extrude-1: #881337;
+  --alert-extrude-2: #4c0519;
+  --alert-extrude-3: #090205;
+  --alert-glow: rgba(244, 63, 94, 0.82);
+  font-size: clamp(2.18rem, 5.5vw, 4.15rem) !important;
+  --arcade-stroke: 9.5px !important;
+  letter-spacing: 0.068em;
+  animation: arcadeAlertDeathShatter 1.38s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Biome Contrast Tuning: Extra deep obsidian-indigo casing on bright Sky & cool Ocean biomes */
+.arcade-alert--biome-heaven {
+  --alert-outline: #050a14;
+  --alert-extrude-3: #020617;
+}
+.arcade-alert--biome-ocean {
+  --alert-outline: #030712;
+  --alert-glow: rgba(253, 224, 71, 0.72);
+}
+
+.arcade-alert__text {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-arcade-alert);
+  isolation: isolate;
+}
+
+.arcade-alert__extrude {
+  grid-area: 1 / 1;
+  z-index: 1;
+  font-family: var(--font-arcade-alert);
+  color: var(--alert-outline);
+  -webkit-text-fill-color: var(--alert-outline);
+  -webkit-text-stroke: var(--arcade-stroke, 7px) var(--alert-outline);
+  paint-order: stroke fill;
+  pointer-events: none;
+  user-select: none;
+  text-shadow:
+    0 2px 0 var(--alert-extrude-1),
+    0 4px 0 var(--alert-extrude-2),
+    0 6px 0 var(--alert-extrude-3),
+    0 8px 0 var(--alert-outline),
+    0 14px 24px rgba(2, 6, 23, 0.92),
+    0 0 20px var(--alert-glow);
+}
+
+.arcade-alert__face {
+  grid-area: 1 / 1;
+  z-index: 2;
+  font-family: var(--font-arcade-alert);
+  background: var(--alert-fill);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.32));
+}
+
+/* Responsive Importance Sizing Tiers */
+.arcade-alert--xs {
+  font-size: clamp(0.78rem, 1.55vw, 1.12rem);
+  --arcade-stroke: 4px;
+}
+.arcade-alert--sm {
+  font-size: clamp(1.22rem, 2.7vw, 1.95rem);
+  --arcade-stroke: 6px;
+}
+.arcade-alert--md {
+  font-size: clamp(1.52rem, 3.6vw, 2.65rem);
+  --arcade-stroke: 7px;
+}
+.arcade-alert--lg {
+  font-size: clamp(1.82rem, 4.4vw, 3.30rem);
+  --arcade-stroke: 8px;
+}
+.arcade-alert--xl {
+  font-size: clamp(2.10rem, 5.2vw, 3.95rem);
+  --arcade-stroke: 9px;
+}
+
 .score-popup {
   position: absolute;
   pointer-events: none;
-  animation: floatAboveFrogHead 1.08s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: arcadeAlertPopImpactFade 1.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   white-space: nowrap;
   z-index: 28;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   padding: 0 !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 1;
-  font-weight: 900 !important;
 }
-.score-popup-combo {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(3.3rem, 6.2vw, 4.95rem);
-  letter-spacing: -0.02em;
-  color: #fef08a;
-  -webkit-text-stroke: 3.5px #451a03;
-  text-shadow: 0 6px 0 #78350f, 0 12px 28px rgba(0, 0, 0, 0.92), 0 0 24px rgba(250, 204, 21, 0.55);
-}
-.score-popup-boss {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(3.6rem, 6.8vw, 5.5rem);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #fff1f2;
-  -webkit-text-stroke: 4px #881337;
-  text-shadow: 0 7px 0 #4c0519, 0 0 32px rgba(244, 63, 94, 0.9), 0 14px 32px rgba(0, 0, 0, 0.95);
-}
-.score-popup-boost {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(3.1rem, 5.8vw, 4.65rem);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #6ee7b7;
-  -webkit-text-stroke: 3.5px #064e3b;
-  text-shadow: 0 6px 0 #022c22, 0 0 26px rgba(52, 211, 153, 0.85), 0 12px 26px rgba(0, 0, 0, 0.92);
-}
-.score-popup-checkpoint {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(3.4rem, 6.4vw, 5.1rem);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #38bdf8;
-  -webkit-text-stroke: 3.8px #0c4a6e;
-  text-shadow: 0 6px 0 #082f49, 0 0 28px rgba(56, 189, 248, 0.9), 0 12px 28px rgba(0, 0, 0, 0.92);
-}
+
 .death-title-font {
   font-family: var(--font-death-title);
   letter-spacing: -0.025em;
@@ -218,36 +469,6 @@
   font-family: var(--font-death-num);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
-}
-@keyframes checkpointBannerPop {
-  0% { opacity: 0; transform: translate(-50%, -22px) rotate(-3deg) scale(0.62); }
-  18% { opacity: 1; transform: translate(-50%, 0px) rotate(2deg) scale(1.16); }
-  32% { opacity: 1; transform: translate(-50%, 0px) rotate(-2deg) scale(1.0); }
-  82% { opacity: 1; transform: translate(-50%, 0px) rotate(-2deg) scale(1.0); }
-  100% { opacity: 0; transform: translate(-50%, -18px) rotate(-2deg) scale(0.88); }
-}
-.animate-checkpoint-banner {
-  animation: checkpointBannerPop 2.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.score-popup-push {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(2.85rem, 5.2vw, 4.25rem);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #fde68a;
-  -webkit-text-stroke: 3.4px #78350f;
-  text-shadow: 0 6px 0 #451a03, 0 0 24px rgba(245, 158, 11, 0.85), 0 12px 24px rgba(0, 0, 0, 0.92);
-}
-.score-popup-danger {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: clamp(3.3rem, 6.2vw, 4.95rem);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #fda4af;
-  -webkit-text-stroke: 3.8px #881337;
-  text-shadow: 0 6px 0 #4c0519, 0 0 28px rgba(244, 63, 94, 0.95), 0 12px 28px rgba(0, 0, 0, 0.95);
 }
 /* Safe-Area Notch & Home-Bar Insets for iOS & Android */
 .safe-top-pad {
@@ -289,15 +510,11 @@
 }
 
 @media (max-width: 639px) {
-  .score-popup-combo,
-  .score-popup-boss,
-  .score-popup-boost,
-  .score-popup-checkpoint,
-  .score-popup-push,
-  .score-popup-danger {
-    font-size: clamp(1.75rem, 7.6vw, 2.55rem);
-    -webkit-text-stroke: 2.4px #0f172a;
-  }
+  .arcade-alert--xs { font-size: clamp(0.68rem, 3.1vw, 0.92rem); --arcade-stroke: 3px; }
+  .arcade-alert--sm { font-size: clamp(1.05rem, 4.8vw, 1.45rem); --arcade-stroke: 4.5px; }
+  .arcade-alert--md { font-size: clamp(1.25rem, 5.8vw, 1.78rem); --arcade-stroke: 5.5px; }
+  .arcade-alert--lg { font-size: clamp(1.42rem, 6.5vw, 2.08rem); --arcade-stroke: 6px; }
+  .arcade-alert--xl { font-size: clamp(1.58rem, 7.2vw, 2.35rem); --arcade-stroke: 6.5px; }
   .logo-word-froggit {
     font-size: clamp(3.5rem, 15.5vw, 5.2rem);
   }

@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Main 60 FPS Animation Loop, Pre-Strike Telegraphs, Camera Rig, Gamepad Polling & Bootstrap
+ * THE FROGGIT — Main 60 FPS Animation Loop, Cannon Recoil/Muzzle-Flash/Ember Trail, Forward Grapple Lock & Camera Rig
  * File: src/main.js
  */
 // =========================================================================
@@ -548,7 +548,18 @@ function animate(now) {
 
       const hitRadius = b.type === 'boss' ? 1.35 : 0.96;
       if (dist < hitRadius) {
-        damageTode(b.type === 'boss' ? 'Struck by Floor Guardian' : 'Touched an Angry Enemy');
+        const curTheme = (FLOORS[state.floorLevel] || FLOORS[0]).theme;
+        let hitMsg = 'Touched an Angry Enemy';
+        if (b.type === 'boss') {
+          hitMsg = curTheme === 'ocean' ? 'Struck by Abyssal Leviathan' : (curTheme === 'heaven' ? 'Struck by Thunder-Eagle Boss' : 'Struck by Floor Guardian');
+        } else if (curTheme === 'ocean') {
+          hitMsg = b.type === 'zigzag' ? 'Bitten by Reef Shark' : (b.type === 'swooper' ? 'Lashed by Giant Squid' : 'Struck by Sea Creature');
+        } else if (curTheme === 'heaven') {
+          hitMsg = b.type === 'swooper' ? 'Struck by Diving Eagle' : (b.type === 'sweeper' ? 'Pecked by Wild Parrot' : 'Struck by Sky Falcon');
+        } else {
+          hitMsg = 'Stung by Angry Bug';
+        }
+        damageTode(hitMsg);
       }
     }
   });
@@ -609,36 +620,74 @@ function animate(now) {
     }
   });
 
-  // Side Bastion Cannons & Cross-Track Cannonballs (X-Axis Projectiles + Pre-Strike Laser Sightline)
+  // Side Bastion Cannons & Giant Bomb Shells (Full Charge, Muzzle Blast, Recoil & Smoke Trail Animation)
   cannonShooters.forEach((cn) => {
     cn.timer += dt;
     const timeRemaining = cn.interval - cn.timer;
+
+    // Smoothly recover cannon barrel recoil & pitch after firing
+    if (cn.recoilOffset > 0.001) {
+      cn.recoilOffset = THREE.MathUtils.lerp(cn.recoilOffset, 0, dt * 11.0);
+    } else {
+      cn.recoilOffset = 0;
+    }
+    const recoilDir = cn.side < 0 ? -1 : 1;
+    cn.barrel.position.x = cn.baseBarrelX + recoilDir * cn.recoilOffset;
+    cn.barrel.rotation.z = recoilDir * cn.recoilOffset * 0.28;
+
+    // Animate 3D Muzzle Fireball & Shockwave Ring expansion
+    if (cn.flashTimer > 0) {
+      cn.flashTimer = Math.max(0, cn.flashTimer - dt);
+      const fp = 1.0 - (cn.flashTimer / 0.22);
+      if (cn.muzzleFlashGroup) {
+        cn.muzzleFlashGroup.visible = true;
+        const fScale = THREE.MathUtils.lerp(0.65, 1.85, fp);
+        cn.muzzleFlashGroup.scale.setScalar(fScale);
+        if (cn.shockRing) {
+          cn.shockRing.scale.setScalar(1.0 + fp * 1.4);
+        }
+      }
+      if (cn.flashTimer <= 0 && cn.muzzleFlashGroup) {
+        cn.muzzleFlashGroup.visible = false;
+      }
+    }
+
+    // Pre-Strike Charge-Up Swell, Tremor & Laser Sightline
     if (cn.laserMat) {
-      if (timeRemaining <= 0.60 && timeRemaining > 0) {
-        cn.laserMat.opacity = 0.35 + 0.45 * Math.abs(Math.sin(now * 0.025));
-        const chargeScale = 1.0 + (0.60 - timeRemaining) * 0.35;
-        cn.barrel.scale.set(chargeScale, 1.0, chargeScale);
+      if (timeRemaining <= 0.65 && timeRemaining > 0) {
+        cn.laserMat.opacity = 0.42 + 0.48 * Math.abs(Math.sin(now * 0.03));
+        const chargeRatio = (0.65 - timeRemaining) / 0.65;
+        const swell = 1.0 + chargeRatio * 0.34;
+        const tremor = Math.sin(now * 0.09) * 0.04 * chargeRatio;
+        cn.barrel.scale.set(1.0 - chargeRatio * 0.10, swell + tremor, swell - tremor);
       } else {
         cn.laserMat.opacity = 0.0;
         cn.barrel.scale.set(1, 1, 1);
       }
     }
+
     if (cn.timer >= cn.interval) {
       cn.timer = 0;
-      if (Math.abs(state.gridZ - cn.gz) <= 10) audio.playCustomSfx("sfx_cannon_fire", 0.75);
-      const ballMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.32, 10, 10),
-        createVoxelMaterial('stone_brick', 0x1e293b, 0xf97316, { roughness: 0.3, metalness: 0.6, emissive: 0xf97316, emissiveIntensity: 0.25 })
-      );
-      const spawnPos = new THREE.Vector3(cn.muzzleX, cn.baseY + 0.85, -cn.gz * TILE_SIZE);
-      ballMesh.position.copy(spawnPos);
-      ballMesh.castShadow = true;
-      worldGroup.add(ballMesh);
+      cn.recoilOffset = 0.58;
+      cn.flashTimer = 0.22;
+      if (Math.abs(state.gridZ - cn.gz) <= 10) {
+        audio.playCustomSfx("sfx_cannon_fire", 0.85);
+        audio.playBonk();
+      }
+      const spawnPos = new THREE.Vector3(cn.muzzleX, cn.baseY + 1.08, -cn.gz * TILE_SIZE);
+      if (Math.abs(state.gridZ - cn.gz) <= 14) {
+        spawnPollenBurst(spawnPos, 12);
+      }
+      const bombMesh = createBombShellMesh();
+      bombMesh.position.copy(spawnPos);
+      worldGroup.add(bombMesh);
       cannonProjectiles.push({
-        mesh: ballMesh,
+        mesh: bombMesh,
         gz: cn.gz,
+        baseY: cn.baseY + 1.08,
         vx: (cn.side < 0 ? 1 : -1) * (8.5 + Math.abs(state.floorLevel) * 0.8),
         pushDir: cn.side < 0 ? 1 : -1,
+        trailTimer: 0,
         life: 2.6
       });
     }
@@ -648,12 +697,40 @@ function animate(now) {
     const pr = cannonProjectiles[i];
     pr.life -= dt;
     pr.mesh.position.x += pr.vx * dt;
-    pr.mesh.rotation.z -= pr.vx * dt * 1.5;
+    // Bob and spin the giant bomb shell while flickering its burning fuse spark!
+    pr.mesh.position.y = pr.baseY + Math.sin(now * 0.018 + i) * 0.08;
+    if (pr.mesh.userData.coreSphere) {
+      pr.mesh.userData.coreSphere.rotation.z -= pr.vx * dt * 1.4;
+    }
+    if (pr.mesh.userData.sparkGroup) {
+      const sPulse = 0.82 + Math.sin(now * 0.055 + i * 2.1) * 0.35;
+      pr.mesh.userData.sparkGroup.scale.setScalar(sPulse);
+      pr.mesh.userData.sparkGroup.rotation.y += dt * 14.0;
+    }
+
+    // Emit live ember & smoke trail puffs behind the flying bomb shell
+    pr.trailTimer += dt;
+    if (pr.trailTimer >= 0.055 && Math.abs(state.gridZ - pr.gz) <= 14) {
+      pr.trailTimer = 0;
+      const isEmber = Math.random() > 0.45;
+      const tMat = new THREE.MeshBasicMaterial({
+        color: isEmber ? 0xf97316 : 0x94a3b8
+      });
+      const pMesh = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.22), tMat);
+      pMesh.position.copy(pr.mesh.position).add(new THREE.Vector3(-Math.sign(pr.vx) * 0.52, (Math.random() - 0.5) * 0.24, (Math.random() - 0.5) * 0.24));
+      particlesGroup.add(pMesh);
+      particles.push({
+        mesh: pMesh,
+        vel: new THREE.Vector3(-pr.vx * 0.18, 1.4 + Math.random() * 1.2, (Math.random() - 0.5) * 0.8),
+        life: 0.32
+      });
+    }
 
     if (state.mode === 'PLAYING' && !state.hopActive && !state.defeated && !state.fallingDeath && !state.victoryCelebrationActive) {
-      if (state.gridZ === pr.gz && Math.abs(todeRoot.position.x - pr.mesh.position.x) < 1.05) {
-        knockbackTode(pr.pushDir, 0, 'Blasted by Cannonball!');
-        spawnPollenBurst(pr.mesh.position, 10);
+      if (state.gridZ === pr.gz && Math.abs(todeRoot.position.x - pr.mesh.position.x) < 1.32) {
+        state.cameraTrauma = Math.min(1.0, state.cameraTrauma + 0.38);
+        knockbackTode(pr.pushDir, 0, 'BOMB BLAST!');
+        spawnPollenBurst(pr.mesh.position, 26);
         pr.life = 0;
       }
     }
@@ -788,6 +865,19 @@ function animate(now) {
       prop.mesh.position.x = prop.baseX + Math.sin(now * 0.0012 + prop.phase) * 0.85;
     } else if (prop.type === 'waterWave') {
       prop.mesh.position.y = prop.baseY + Math.sin(now * 0.0018) * 0.12;
+    } else if (prop.type === 'singingParrot') {
+      const songWave = now * 0.0065 + prop.phase;
+      prop.mesh.position.y = Math.abs(Math.sin(songWave)) * 0.10;
+      prop.mesh.rotation.z = Math.sin(songWave * 0.7) * 0.14;
+      const flap = Math.sin(songWave * 2.2) * 0.35;
+      if (prop.leftWing) prop.leftWing.rotation.z = flap;
+      if (prop.rightWing) prop.rightWing.rotation.z = -flap;
+      if (prop.noteSprite) {
+        const noteCycle = (now * 0.0012 + prop.phase) % 1.0;
+        prop.noteSprite.position.y = 0.88 + noteCycle * 0.55;
+        prop.noteSprite.position.x = Math.sin(noteCycle * Math.PI * 2 + prop.phase) * 0.18;
+        prop.noteSprite.material.opacity = Math.sin(noteCycle * Math.PI);
+      }
     }
   });
 
@@ -902,6 +992,20 @@ function animate(now) {
     camera.lookAt(playLookAt);
   }
 
+  // Update Grapple Lily-Post active/passed states (deactivate once Tode reaches or passes their row!)
+  grappleTargets.forEach((gt) => {
+    if (gt.kind === 'grapple_post' && gt.alive) {
+      const nowPassed = (state.gridZ >= gt.gz) || (gt.mesh.position.z >= todeRoot.position.z - 0.5);
+      if (nowPassed !== gt.passed) {
+        gt.passed = nowPassed;
+        if (gt.ringMesh) gt.ringMesh.visible = !nowPassed;
+        if (gt.lotusBulb && gt.passedLotusMat && gt.activeLotusMat) {
+          gt.lotusBulb.material = nowPassed ? gt.passedLotusMat : gt.activeLotusMat;
+        }
+      }
+    }
+  });
+
   // Update Live 3D Pink Target Lock-On Reticle Ring on nearest in-range target
   if (state.mode === 'PLAYING' && !state.defeated && !state.fallingDeath && state.tongueState === 'idle') {
     const maxRange = 8.4 * state.scaleMultiplier;
@@ -910,6 +1014,9 @@ function animate(now) {
     const fwd = new THREE.Vector3(Math.sin(state.currentYaw), 0, Math.cos(state.currentYaw));
     const checkLock = (c) => {
       if (!c.alive || c.latched) return;
+      if (c.kind === 'grapple_post' && (c.passed || state.gridZ >= c.gz || c.mesh.position.z >= todeRoot.position.z - 0.5)) {
+        return;
+      }
       const dVec = c.mesh.position.clone().sub(todeRoot.position);
       const dist = dVec.length();
       if (dist <= maxRange && dist > 0.1) {
@@ -979,6 +1086,7 @@ window.addEventListener('resize', () => {
 });
 
 window.onload = () => {
+  ensurePlayerName();
   renderLeaderboardUI();
   renderSkinSelectorUI();
   syncSettingsModalUI();

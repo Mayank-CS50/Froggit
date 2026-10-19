@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Cross-Platform Input Controllers (Keyboard, Mouse Raycaster, Touch D-Pad/Swipe & UI Events)
+ * THE FROGGIT — Keyboard, Mouse Raycaster, Touch D-Pad/Swipe & Modal Event Listeners
  * File: src/input/controls.js
  */
 // =========================================================================
@@ -343,9 +343,15 @@ function returnToLandingScreen() {
   state.previousModeBeforePause = 'LANDING';
   state.defeated = false;
   state.fallingDeath = false;
+  const wasVictory = state.victoryCelebrationActive;
   state.victoryCelebrationActive = false;
   state.gridX = 0;
   state.gridZ = 0;
+  if (wasVictory || state.floorLevel !== 0) {
+    state.floorLevel = 0;
+    buildRoadwayWorld();
+    populateRoadwayBees();
+  }
   todeRoot.position.set(0.65, 0, 0.35);
   todeRoot.rotation.set(0, -0.38, 0);
   state.targetYaw = -0.38;
@@ -400,4 +406,3 @@ document.getElementById('btn-victory-map').addEventListener('click', () => {
   m.classList.add('flex');
 });
 document.getElementById('btn-victory-home').addEventListener('click', returnToLandingScreen);
-

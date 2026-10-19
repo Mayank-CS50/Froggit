@@ -1,5 +1,5 @@
 /**
- * THE FROGGIT — Core Hopping, 1-Slot Input Buffer, Tongue Grapple, Knockback & Modal Flows
+ * THE FROGGIT — Core Hopping, Forward-Only Tongue Grapple, Knockback & Modal Flows
  * File: src/gameplay/mechanicsAndModals.js
  */
 // =========================================================================
@@ -159,10 +159,8 @@ function triggerFirstTimeCheckpoint(cpRow = 28) {
 
   const cpIdx = CHECKPOINT_ROWS.indexOf(cpRow) + 1;
   const toast = document.getElementById('checkpoint-toast-banner');
-  const titleEl = document.getElementById('checkpoint-toast-title');
-  const subEl = document.getElementById('checkpoint-toast-sub');
-  if (titleEl) titleEl.textContent = `CHECKPOINT ${cpIdx > 0 ? '#' + cpIdx : ''} SAVED`;
-  if (subEl) subEl.textContent = 'Press [Enter] Anytime on Wipeout to Revive Here';
+  setArcadeAlertText('checkpoint-toast-title', `CHECKPOINT ${cpIdx > 0 ? '#' + cpIdx : ''} SAVED!`);
+  setArcadeAlertText('checkpoint-toast-sub', 'PRESS [ENTER] ON WIPEOUT TO REVIVE HERE');
   if (toast) {
     toast.classList.remove('hidden', 'animate-checkpoint-banner');
     void toast.offsetWidth;
@@ -245,6 +243,10 @@ function fireTongueGrapple(aimWorldPoint = null) {
 
   const evaluateCandidate = (cand) => {
     if (!cand.alive || cand.latched) return;
+    // Forward-Only Tongue Grappler Rule: Grapplers behind or at Tode's row cannot be used!
+    if (cand.kind === 'grapple_post' && (cand.passed || state.gridZ >= cand.gz || cand.mesh.position.z >= todeRoot.position.z - 0.5)) {
+      return;
+    }
     const toCand = cand.mesh.position.clone().sub(todeRoot.position);
     const distToFrog = toCand.length();
     if (distToFrog <= maxRange && distToFrog > 0.1) {
@@ -362,8 +364,11 @@ function onSwallowBee(bee) {
   spawnPollenBurst(mouthWorldPos, 20);
   spawnFloatingPopup(
     mouthWorldPos,
-    bee.type === 'boss' ? `GUARDIAN DEVOURED! +${points}` : `+${points} (${state.combo}x)`,
-    'text-amber-300 text-lg sm:text-xl'
+    bee.type === 'boss'
+      ? `GUARDIAN DEVOURED! +${points}`
+      : (state.combo >= 2 ? `COMBO ${state.combo}X! +${points}` : `BUG EATEN! +${points}`),
+    '',
+    bee.type === 'boss' ? 'boss' : (state.combo >= 2 ? 'combo' : 'bug')
   );
 
   state.chewTimer = 0.52;
@@ -599,6 +604,9 @@ function triggerCampaignVictoryFinale() {
   tongueGroup.visible = false;
   tongueTipMesh.visible = false;
 
+  // Replace the finish-shrine hoops environment with the dedicated Victory Celebration Sanctuary!
+  buildVictoryCelebrationSanctuary();
+
   state.score += 1500;
   recordScoreToLeaderboard();
   updateHUD();
@@ -609,7 +617,7 @@ function triggerCampaignVictoryFinale() {
   spawnPollenBurst(centerPos, 42);
   spawnFloatingPopup(
     centerPos,
-    isHeavenApex ? '👑 SERAPHIM CROWN CONQUERED! +1500' : '🌊 MARIANA ABYSS CONQUERED! +1500',
+    isHeavenApex ? 'SUN CROWN CONQUERED! +1500' : 'MARIANA ABYSS CONQUERED! +1500',
     '',
     'boss'
   );
@@ -678,20 +686,9 @@ function startHoopLevelTransition(targetLevel, hoopX, hoopZ, isSky) {
     'boss'
   );
 
-  const overlineEl = document.getElementById('iris-stage-overline');
-  const titleEl = document.getElementById('iris-stage-title');
-  const subEl = document.getElementById('iris-stage-sub');
-  if (overlineEl) {
-    overlineEl.textContent = `${isSky ? '☀️ HEAVEN HOOP ASCENSION' : '🌊 ABYSS HOOP DIVE'} • +600 PTS`;
-  }
-  if (titleEl) {
-    titleEl.textContent = `${nextCfg.icon} ${nextCfg.name.toUpperCase()}`;
-  }
-  if (subEl) {
-    subEl.textContent = isSky
-      ? 'Ascending through the Golden Resonance Hoop...'
-      : 'Diving through the Bioluminescent Abyss Hoop...';
-  }
+  setArcadeAlertText('iris-stage-overline', `${isSky ? 'HEAVEN HOOP ASCENSION' : 'ABYSS HOOP DIVE'} +600 PTS`);
+  setArcadeAlertText('iris-stage-title', `${nextCfg.name.toUpperCase()}`);
+  setArcadeAlertText('iris-stage-sub', isSky ? 'ASCENDING TO NEXT SKY REALM...' : 'DIVING TO NEXT OCEAN REALM...');
 }
 
 function transitionToFloor(targetLevel, resetRun = false) {
@@ -770,4 +767,3 @@ function startPlayFromLanding(initialFloor = 0) {
     renderLiveMinimap();
   }, 500);
 }
-

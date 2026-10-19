@@ -1,11 +1,12 @@
 /**
- * THE FROGGIT — Design Tokens, Typography & 6-Tier Z-Index Scale
+ * THE FROGGIT — Design Tokens, Bungee Arcade Font & 6-Tier Z-Index Scale
  * File: src/styles/tokens.css
  */
 /* =========================================================================
    1. CENTRALIZED PRODUCTION DESIGN TOKENS (2 Fonts, Restrained Palette)
    ========================================================================= */
 :root {
+  --font-arcade-alert: 'Bungee', 'Outfit', system-ui, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
   --font-death-title: 'Syne', 'Outfit', system-ui, sans-serif;
   --font-death-num: 'Space Grotesk', 'JetBrains Mono', monospace;
@@ -136,4 +137,3 @@ h1, h2, h3, .font-display {
   height: 100%;
   cursor: crosshair;
 }
-
