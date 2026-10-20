@@ -152,6 +152,7 @@ h1, h2, h3, .font-display {
   cursor: crosshair;
 }
 
+
 /* === src/styles/components.css === */
 /**
  * Froggit — Sky and Abyss: Reusable UI Surfaces, HUD Buttons, Minimap Frame & Touch Controls
@@ -542,6 +543,7 @@ input[type="range"].ui-slider::-moz-range-thumb {
 .narrator-wave-bar:nth-child(2) { animation-delay: 0.14s; height: 18px; background: #6ee7b7; }
 .narrator-wave-bar:nth-child(3) { animation-delay: 0.28s; height: 12px; background: #a7f3d0; }
 .narrator-wave-bar:nth-child(4) { animation-delay: 0.09s; height: 16px; background: #34d399; }
+
 
 /* === src/styles/animations.css === */
 /**
@@ -1133,7 +1135,8 @@ input[type="range"].ui-slider::-moz-range-thumb {
   }
 }
 
-</style>
+
+  </style>
 </head>
 <body class="text-white select-none">
   <!-- 3D Viewport Container -->
@@ -2155,9 +2158,7 @@ input[type="range"].ui-slider::-moz-range-thumb {
 
   <script>
 
-// ==========================================
-// === Module: src/audio/ProceduralAudio.js ===
-// ==========================================
+// === src/audio/ProceduralAudio.js ===
 /**
  * Froggit — Sky and Abyss — Background Music (Calm Theme & Celebration Song) & Web Audio Synthesizer
  * File: src/audio/ProceduralAudio.js
@@ -2838,9 +2839,8 @@ class ProceduralAudio {
 const audio = new ProceduralAudio();
 window.froggitAudio = audio;
 
-// ==========================================
-// === Module: src/state/gameState.js ===
-// ==========================================
+
+// === src/state/gameState.js ===
 const STORY_INTRO_CHAPTERS = [
   {
     duration: 4.0,
@@ -3246,9 +3246,8 @@ function renderLeaderboardUI() {
   }
 }
 
-// ==========================================
-// === Module: src/rendering/sceneAndShaders.js ===
-// ==========================================
+
+// === src/rendering/sceneAndShaders.js ===
 /**
  * THE FROGGIT — Three.js Scene, Lighting & 256x256 Procedural Gradient/Bump Shader Engine
  * File: src/rendering/sceneAndShaders.js
@@ -3781,9 +3780,8 @@ function createSkyDomeTexture(topColor, midColor, horizonColor, theme = 'ground'
   return tex;
 }
 
-// ==========================================
-// === Module: src/entities/todeRig.js ===
-// ==========================================
+
+// === src/entities/todeRig.js ===
 /**
  * THE FROGGIT — Mascot Tode 3D Rig, Dynamic Skin Switcher, Pink Tongue & 3D Lock-On Reticle
  * File: src/entities/todeRig.js
@@ -4310,9 +4308,8 @@ targetReticleGroup.add(reticleOuterRing);
 targetReticleGroup.visible = false;
 scene.add(targetReticleGroup);
 
-// ==========================================
-// === Module: src/world/courseBuilder.js ===
-// ==========================================
+
+// === src/world/courseBuilder.js ===
 /**
  * THE FROGGIT — 96-Row Winding Course, Giant Bomb Shell & Cannon Rig, Safe Forward-Only Grapple Posts & InstancedMesh Builder
  * File: src/world/courseBuilder.js
@@ -6521,9 +6518,8 @@ function buildVictoryCelebrationSanctuary() {
   }
 }
 
-// ==========================================
-// === Module: src/entities/enemiesAndParticles.js ===
-// ==========================================
+
+// === src/entities/enemiesAndParticles.js ===
 /**
  * THE FROGGIT — Froggit-Style Sculpted Voxel-Mascot Enemies & Diverse Callout Popups
  * File: src/entities/enemiesAndParticles.js
@@ -7554,9 +7550,8 @@ function spawnFloatingPopup(worldPos, text, colorClass = '', situation = 'auto')
   }, 1160);
 }
 
-// ==========================================
-// === Module: src/ui/minimapAndWorldMap.js ===
-// ==========================================
+
+// === src/ui/minimapAndWorldMap.js ===
 /**
  * THE FROGGIT — 60 FPS 2D Orthographic Course Minimap & 7-Realm World Showcase Modal
  * File: src/ui/minimapAndWorldMap.js
@@ -8279,9 +8274,8 @@ function renderCrossSectionMap() {
   });
 }
 
-// ==========================================
-// === Module: src/gameplay/mechanicsAndModals.js ===
-// ==========================================
+
+// === src/gameplay/mechanicsAndModals.js ===
 function syncCornerMusicButtonUI() {
   const cornerBtn = document.getElementById('btn-corner-music-toggle');
   const iconOn = document.getElementById('icon-corner-music-on');
@@ -9281,9 +9275,8 @@ function startPlayFromLanding(initialFloor = 0, forceStoryIntro = true) {
     }
   }, 320);
 }
-// ==========================================
-// === Module: src/input/controls.js ===
-// ==========================================
+
+// === src/input/controls.js ===
 /**
  * Froggit — Sky and Abyss — Keyboard, Mouse Raycaster, Touch D-Pad/Swipe & Modal Event Listeners
  * File: src/input/controls.js
@@ -9760,9 +9753,8 @@ if (btnReplayStory) {
   });
 }
 
-// ==========================================
-// === Module: src/main.js ===
-// ==========================================
+
+// === src/main.js ===
 /**
  * Froggit — Sky and Abyss — Main 60 FPS Animation Loop, Cannon Recoil/Muzzle-Flash/Ember Trail, Forward Grapple Lock & Camera Rig
  * File: src/main.js
@@ -11025,6 +11017,7 @@ window.onload = () => {
   requestAnimationFrame(animate);
 };
 
-</script>
+
+  </script>
 </body>
 </html>
